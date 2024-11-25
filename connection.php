@@ -2,7 +2,7 @@
 $dbhost = 'localhost';
 $dbuser = 'root';
 $dbpassword = '';
-$dbname = 'ex_classe';
+$dbname = 'totcloud';
 
 $conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname);
 
