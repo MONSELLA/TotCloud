@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="register-container">
+        <h1>Registrar Usuari</h1>
+        <form action="crearUsuari.php" method="POST">
+            <label for="user">Nickname:</label>
+            <input name="user" type="text" required>
+
+            <label for="pass">Contrasenya:</label>
+            <input name="pass" type="password" required>
+            
+            <label for="is_personal">
+                Ets personal?
+                <input id="is_personal" name="is_personal" type="checkbox"> 
+            </label>
+            <br>
+            <input name="Registrar" type="submit">
+        </form>
+    </div>
+</body>
+
+</html>
