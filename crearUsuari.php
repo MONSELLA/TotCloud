@@ -1,5 +1,5 @@
 <?php
-include "conexion.php";
+include "connection.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newUser = $_POST['new_user'] ?? '';
@@ -13,10 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Determinar la taula en funció de la checkbox
-    $table = $isPersonal ? 'personal' : 'clients';
+    $table = $isPersonal ? 'personal' : 'client';
 
     // Verificar si l'usuari ja existeix a la taula corresponent
-    $checkQuery = "SELECT * FROM $table WHERE usuari = ?";
+    $checkQuery = "SELECT * FROM $table WHERE nick = ?";
     $stmt = $conn->prepare($checkQuery);
     $stmt->bind_param("s", $newUser);
     $stmt->execute();
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si l'usuari no existeix, inserir el nou usuari
     $salt = '$2y$10$' . substr(str_replace('+', '.', base64_encode(random_bytes(16))), 0, 22);
     $hashedPass = crypt($newPass, $salt);
-    $insertQuery = "INSERT INTO $table (usuari, contrasenya) VALUES (?, ?)";
+    $insertQuery = "INSERT INTO $table (nick, contrasenya) VALUES (?, ?)";
     $stmt = $conn->prepare($insertQuery);
     $stmt->bind_param("ss", $newUser, $hashedPass);
 

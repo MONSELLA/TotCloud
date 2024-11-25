@@ -63,6 +63,11 @@ if (isset($_SESSION['user'])) {
 
 <body>
     <center><img src="images/cloud.png" width="75"></center>
+    <form method="POST" action="logout.php">
+        <center>
+            <button type="submit">Tancar Sessió</button>
+        </center>
+    </form>
 </body>
 
 </html>
