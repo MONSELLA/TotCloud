@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TotCloud - Inicio</title>
+    <title>TotCloud - Página Principal</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -14,21 +14,22 @@
     <nav class="navbar navbar-dark" style="background-color: #343a40;">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">TotCloud</span>
-            <div>
-                <a href="login.html" class="btn">
-                    <img src="images/login.png" alt="Login" class="img-fluid" style="max-width: 1.8em; height: auto;">
-                </a>
-            </div>
+            <button class="btn">
+                <img src="images/cesta.png" alt="Cesta" class="img-fluid" style="max-width: 1.8em; height: auto;">
+            </button>
         </div>
     </nav>
 
     <!-- Contenido principal -->
     <main class="d-flex flex-column justify-content-center align-items-center vh-100">
-        <div class="text-center">
+        <div class="text-center mb-4">
             <h1 class="text-black text-primary">Benvingut a TotCloud</h1>
-            <p class="text-secondary fs-5">
-                Per accedir als nostres serveis, si us plau, inicia sessió.
-            </p>
+            <p class="text-secondary">Selecciona una opció per continuar:</p>
+        </div>
+        <div class="d-flex flex-column gap-3" style="max-width: 300px; width: 100%;">
+            <a href="#" class="btn btn-primary btn-lg w-100">Consultar els meus productes</a>
+            <a href="#" class="btn btn-secondary btn-lg w-100">Comprar màquina virtual</a>
+            <a href="#" class="btn btn-secondary btn-lg w-100">Comprar base de dades</a>
         </div>
     </main>
 
