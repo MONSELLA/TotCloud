@@ -4,100 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Sign Up</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            height: 100vh;
-            overflow-y: auto;
-            /* Habilita el scroll vertical si el contenido no cabe */
-        }
-
-        .card-container {
-            min-height: 100%;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
+            background-color: #f8f9fa;
+            overflow-y: auto;
+            overflow-x: hidden; /* Evita l'scroll horitzontal */
+            margin: 0;
         }
 
         .card {
+            max-width: 400px;
             width: 100%;
-            max-width: 320px;
-            /* Reduce el ancho máximo */
-            padding: 1rem;
-            /* Reduce el padding interno */
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            /* Reduce el tamaño del título */
-        }
-
-        .form-label {
-            font-size: 0.9rem;
-            /* Reduce el tamaño de las etiquetas */
-        }
-
-        .form-control {
-            font-size: 0.85rem;
-            /* Reduce el tamaño del texto dentro de los inputs */
-        }
-
-        .btn {
-            font-size: 0.9rem;
-            /* Reduce el tamaño del texto del botón */
-            padding: 0.5rem;
-            /* Ajusta el espacio interior del botón */
-        }
-
-        .small {
-            font-size: 0.8rem;
-            /* Reduce el tamaño del enlace de redirección */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
         }
     </style>
 </head>
 
-<body class="bg-light">
-    <main>
-        <div class="card-container">
-            <div class="card shadow-sm">
-                <h1 class="text-black text-center text-primary mb-3">Registrar Usuari</h1>
-                <form action="crearUsuari.php" method="POST">
-                    <div class="mb-2">
-                        <label for="nom" class="form-label">Nom:</label>
-                        <input id="nom" name="nom" type="text" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="llinatge1" class="form-label">Primer cognom:</label>
-                        <input id="llinatge1" name="llinatge1" type="text" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="llinatge2" class="form-label">Segon cognom:</label>
-                        <input id="llinatge2" name="llinatge2" type="text" class="form-control">
-                    </div>
-                    <div class="mb-2">
-                        <label for="nick" class="form-label">Nickname:</label>
-                        <input id="nick" name="nick" type="text" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="contrasenya" class="form-label">Contrasenya:</label>
-                        <input id="contrasenya" name="contrasenya" type="password" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="email" class="form-label">Email:</label>
-                        <input id="email" name="email" type="email" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Registrar</button>
-                </form>
-                <div class="text-center mt-2">
-                    <a href="login.html" class="text-primary small">Iniciar sessió</a>
-                </div>
+<body>
+    <div class="card">
+        <h1 class="text-black text-center text-primary mb-4">Registrar Usuari</h1>
+        <form action="crearUsuari.php" method="POST">
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom:</label>
+                <input id="nom" name="nom" type="text" class="form-control" required>
             </div>
+            <div class="mb-3">
+                <label for="llinatge1" class="form-label">Primer Cognom:</label>
+                <input id="llinatge1" name="llinatge1" type="text" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="llinatge2" class="form-label">Segon Cognom:</label>
+                <input id="llinatge2" name="llinatge2" type="text" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input id="email" name="email" type="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="nick" class="form-label">Nick:</label>
+                <input id="nick" name="nick" type="text" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="contrasenya" class="form-label">Contrasenya:</label>
+                <input id="contrasenya" name="contrasenya" type="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="login.html" class="text-primary small">Iniciar Sessió</a>
         </div>
-    </main>
-    <!-- Bootstrap Bundle with Popper -->
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

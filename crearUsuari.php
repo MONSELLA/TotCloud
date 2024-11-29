@@ -9,13 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contrasenya = $_POST['contrasenya'] ?? '';
     $email = $_POST['email'] ?? '';
 
-    // Verificar que los campos obligatorios no estén vacíos
+    // Verificar que els camps obligatoris no estiguin buits
     if (empty($nom) || empty($llinatge1) || empty($nick) || empty($contrasenya) || empty($email)) {
-        echo "Error: Los campos 'Nom', 'Primer cognom (llinatge1)', 'Nickname', 'Contrasenya' y 'Email' no pueden estar vacíos.";
+        echo "Error: Els camps 'Nom', 'Primer cognom', 'Nick', 'Contrasenya' i 'Email' no poden estar buits.";
         exit;
     }
 
-    // Determinar la tabla en función del dominio del correo electrónico
+    // Determinar la taula en funció del domini del correo electrònic
     $domain = substr(strrchr($email, "@"), 1);
     if ($domain === "totcloud.com") {
         $table = 'personal';
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $table = 'client';
     }
 
-    // Verificar si el usuario ya existe en la tabla correspondiente
+    // Verificar si l'usuario ja existeix a la taula corresponent
     $checkQuery = "SELECT * FROM $table WHERE nick = ?";
     $stmt = $conn->prepare($checkQuery);
     $stmt->bind_param("s", $nick);
@@ -31,11 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        echo "Error: El usuario ya existe en la tabla $table. Elige otro nickname.";
+        echo "Error: L'usuari ja existeix en la taula $table. Elegeix un altre nick.";
         exit;
     }
 
-    // Si el usuario no existe, insertar el nuevo usuario
+    // Si l'usuario no existeix, inserir el nou usuari
     $salt = '$2y$10$' . substr(str_replace('+', '.', base64_encode(random_bytes(16))), 0, 22);
     $hashedPass = crypt($contrasenya, $salt);
     $insertQuery = "INSERT INTO $table (nom, llinatge1, llinatge2, nick, contrasenya, email) 
@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ssssss", $nom, $llinatge1, $llinatge2, $nick, $hashedPass, $email);
 
     if ($stmt->execute()) {
-        echo "Usuario creado correctamente en la tabla $table. <a href='/laliga'>Volver al inicio</a>";
+        echo "Usuari creat correctament a la taula $table. <a href='login.html'>Torna a l'inici</a>";
     } else {
-        echo "Error al crear el usuario: " . $conn->error;
+        echo "Error al crear l'usuari: " . $conn->error;
     }
 }

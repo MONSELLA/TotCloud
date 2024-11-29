@@ -7,6 +7,7 @@ include "connection.php";
 // Verificar si ja hi ha una sessió iniciada
 if (isset($_SESSION['user'])) {
     echo "Sessió ja iniciada per l'usuari: " . $_SESSION['user'];
+    echo "<br>El teu ID és: " . $_SESSION['id'];  // Mostrar l'id guardat dins la sessió
 } else {
     // Recollida de paràmetres
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -16,7 +17,15 @@ if (isset($_SESSION['user'])) {
         // Funció per verificar l'usuari en una taula específica
         function verificarUsuari($conn, $user, $pass, $taula)
         {
-            $query = "SELECT contrasenya FROM $taula WHERE nick = ?";
+
+            // Determinar el camp id en funció de la taula
+            if ($taula == 'client') {
+                $idField = 'idClient';
+            } elseif ($taula == 'personal') {
+                $idField = 'idPersonal';
+            }
+
+            $query = "SELECT $idField, contrasenya FROM $taula WHERE email = ?";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("s", $user);
             $stmt->execute();
@@ -28,7 +37,7 @@ if (isset($_SESSION['user'])) {
 
                 // Verificar la contrasenya
                 if (hash_equals($hashedPassword, crypt($pass, $hashedPassword))) {
-                    return true;
+                    return $row; // Retorna tota la fila (incloent l'id)
                 }
             }
             return false;
@@ -39,8 +48,16 @@ if (isset($_SESSION['user'])) {
         $sessioIniciada = false;
 
         foreach ($taules as $taula) {
+            $userData = verificarUsuari($conn, $user, $pass, $taula);
             if (verificarUsuari($conn, $user, $pass, $taula)) {
                 $_SESSION['user'] = $user;
+                // Guardar l'id dins la sessió segons la taula (client o personal)
+                if ($taula == 'client') {
+                    $_SESSION['id'] = $userData['idClient'];  // Per clients, usar 'idClient'
+                } elseif ($taula == 'personal') {
+                    $_SESSION['id'] = $userData['idPersonal'];  // Per personal, usar 'idPersonal'
+                }
+                
                 echo "Sessió iniciada correctament!";
                 $sessioIniciada = true;
                 break;
@@ -48,7 +65,7 @@ if (isset($_SESSION['user'])) {
         }
 
         if (!$sessioIniciada) {
-            echo "Error: Usuari o contrasenya incorrectes.";
+            echo "Error: Email o contrasenya incorrectes.";
             exit;
         }
     } else {
@@ -63,6 +80,22 @@ if (isset($_SESSION['user'])) {
 
 <body>
     <center><img src="images/cloud.png" width="75"></center>
+
+    <?php
+    // Mostrar missatge depenent del tipus d'usuari
+    if (isset($taula) && $taula == 'client') {
+        echo "<p>Hola, Client!</p>";
+        echo "<br>El teu ID és: " . $_SESSION['id'];  // Mostrar l'id guardat dins la sessió
+        // Redirecció per clients:
+        // header("Location: client_dashboard.php");
+    } elseif (isset($taula) && $taula == 'personal') {
+        echo "<p>Hola, Personal!</p>";
+        echo "<br>El teu ID és: " . $_SESSION['id'];  // Mostrar l'id guardat dins la sessió
+        // Redirecció per personal:
+        // header("Location: personal_dashboard.php");
+    }
+    ?>
+
     <form method="POST" action="logout.php">
         <center>
             <button type="submit">Tancar Sessió</button>
