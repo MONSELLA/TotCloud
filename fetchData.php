@@ -12,14 +12,14 @@ switch ($queryType) {
     case 'cpu':
         // Si no s'ha introduït cap marca, mostrem tots els components
         if ($brand == '') {
-            $sql = "SELECT idcpu, model.nom, model.nomMarca, valocitatRellotge, nuclis, preu 
+            $sql = "SELECT idcpu, model.nom, model.nomMarca, velocitatRellotge, nuclis, preu 
                     FROM cpu 
                     JOIN model ON cpu.nomModel = model.nom
                     WHERE idMaquina IS NULL 
                     AND nomFase = 'final'";
         } else {
             // Si hi ha marca, filtre per la marca especificada
-            $sql = "SELECT idcpu, model.nom, model.nomMarca, valocitatRellotge, nuclis, preu 
+            $sql = "SELECT idcpu, model.nom, model.nomMarca, velocitatRellotge, nuclis, preu 
                     FROM cpu 
                     JOIN model ON cpu.nomModel = model.nom
                     WHERE idMaquina IS NULL 
@@ -41,9 +41,12 @@ switch ($queryType) {
                     AND nomFase = 'final'";
         } else {
             // Si hi ha marca, filtre per la marca especificada
-            $sql = "SELECT idgpu, model.nom, model.nomMarca, vram, generacio, preu 
-                    FROM gpu 
-                    JOIN model ON gpu.nomModel = model.nom
+            $sql = "SELECT idgpu, model.nom, model.nomMarca, nuclis, vram.generacio, vram.capacitat, preu 
+                    FROM model 
+                    JOIN (gpu 
+                        JOIN vram
+                        ON vram.idVRAM = gpu.idVRAM) 
+                    ON gpu.nomModel = model.nom
                     WHERE idMaquina IS NULL
                     AND nomFase = 'final'
                     AND model.nomMarca LIKE ?";
@@ -78,7 +81,7 @@ switch ($queryType) {
 }
 
 if ($queryType != 'sistema_operatiu') {
-    $sql .= "ORDER BY preu $asc";
+    $sql .= " ORDER BY preu $asc";
 }
 
 if ($stmt = $conn->prepare($sql)) {
