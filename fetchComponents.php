@@ -54,25 +54,48 @@ switch ($queryType) {
         break;
 
     case 'disc_dur':
-        // Consulta per a Disc Dur, sense filtrar per marca
-        $sql = "SELECT iddisc, nomTipus, capacitat, preu 
-                FROM disc_dur
-                WHERE idMaquina IS NULL 
-                AND nomFase = 'final'";
+        if ($brand == '') {
+            // Consulta per a Disc Dur, sense filtrar per marca
+            $sql = "SELECT iddisc, nomTipus, capacitat, preu 
+                    FROM disc_dur
+                    WHERE idMaquina IS NULL 
+                    AND nomFase = 'final'";
+        } else {
+            $sql = "SELECT iddisc, nomTipus, capacitat, preu 
+                    FROM disc_dur
+                    WHERE idMaquina IS NULL 
+                    AND nomFase = 'final'
+                    AND nomTipus LIKE ?";
+        }
         break;
 
     case 'ram':
-        // Consulta per a RAM, sense filtrar per marca
-        $sql = "SELECT idram, generacio, capacitat, preu 
+        if ($brand == '') {
+            // Consulta per a RAM, sense filtrar per marca
+            $sql = "SELECT idram, generacio, capacitat, preu 
                 FROM ram
                 WHERE idMaquina IS NULL 
                 AND nomFase = 'final'";
+        } else {
+            // Consulta per a RAM, sense filtrar per marca
+            $sql = "SELECT idram, generacio, capacitat, preu 
+                FROM ram
+                WHERE idMaquina IS NULL 
+                AND nomFase = 'final'
+                AND generacio LIKE ?";
+        }
         break;
 
     case 'sistema_operatiu':
-        // Consulta per a Sistema Operatiu, sense filtrar per marca
-        $sql = "SELECT idSO, nom, versio
+        if ($brand == '') {
+            // Consulta per a Sistema Operatiu, sense filtrar per marca
+            $sql = "SELECT idSO, nom, versio
                 FROM sistema_operatiu";
+        } else {
+            $sql = "SELECT idSO, nom, versio
+                FROM sistema_operatiu
+                WHERE nom LIKE ?";
+        }
         break;
     default:
         // Si no es reconeix el tipus de consulta, retornem un array buit
@@ -85,7 +108,7 @@ if ($queryType != 'sistema_operatiu') {
 }
 
 if ($stmt = $conn->prepare($sql)) {
-    if ($brand != '' && ($queryType === "cpu" || $queryType === "gpu")) {
+    if ($brand != '') {
         $brand = "%" . $brand . "%";  // Usar LIKE per a una cerca parcial
         $stmt->bind_param('s', $brand);  // Enllaçar el paràmetre de la marca (cadena)
     }
@@ -98,6 +121,9 @@ if ($stmt = $conn->prepare($sql)) {
     }
     echo json_encode($data);  // Retornem els resultats com a JSON
     $stmt->close();
+    $conn->close();
 } else {
     echo json_encode([]);  // Si no hi ha resultats, retornem un array buit
+    $stmt->close();
+    $conn->close();
 }
