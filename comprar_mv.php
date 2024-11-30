@@ -212,7 +212,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${component.nomMarca} ${component.nom}</h5>
                                     <p class="card-text">Nuclis: ${component.nuclis}</p>
-                                    <p class="card-text">VRAM -></br>Capacitat: ${component.vram}GB</br>Generacio:</p>
+                                    <p class="card-text">VRAM -></br>Generació: ${component.generacio}GB</br>Capacitat: ${component.capacitat}</p>
                                     <p class="card-text" id="preu_${component.idgpu}">Preu: ${component.preu}€</p>
                                 </div>
                             </div>
@@ -251,6 +251,18 @@
                     });
                     break;
                 case 'sistema_operatiu':
+                    data.forEach(component => {
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5 class="card-title">${component.nom}</h5>
+                                    <p class="card-text">Versió: ${component.versio}GB</p>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
                     break;
                 default:
                     break;

@@ -31,9 +31,12 @@ switch ($queryType) {
     case 'gpu':
         // Si no s'ha introduït cap marca, mostrem tots els components
         if ($brand == '') {
-            $sql = "SELECT idgpu, model.nom, model.nomMarca, vram, preu 
-                    FROM gpu 
-                    JOIN model ON gpu.nomModel = model.nom
+            $sql = "SELECT idgpu, model.nom, model.nomMarca, nuclis, vram.generacio, vram.capacitat, preu 
+                    FROM model 
+                    JOIN (gpu 
+                        JOIN vram
+                        ON vram.idVRAM = gpu.idVRAM) 
+                    ON gpu.nomModel = model.nom
                     WHERE idMaquina IS NULL
                     AND nomFase = 'final'";
         } else {
