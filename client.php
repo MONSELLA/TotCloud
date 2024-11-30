@@ -28,7 +28,7 @@
         </div>
         <div class="d-flex flex-column gap-3" style="max-width: 300px; width: 100%;">
             <a href="#" class="btn btn-primary btn-lg w-100">Consultar els meus productes</a>
-            <a href="#" class="btn btn-secondary btn-lg w-100">Comprar màquina virtual</a>
+            <a href="comprar_mv.php" class="btn btn-secondary btn-lg w-100">Comprar màquina virtual</a>
             <a href="#" class="btn btn-secondary btn-lg w-100">Comprar base de dades</a>
         </div>
     </main>
