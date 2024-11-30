@@ -1,106 +1,131 @@
 <?php
-// Incluir el archivo de conexión
+// Incluir el archivo de conexión y las clases necesarias
 include "connection.php";
+include "SGBD.php";
+include "CONFIGURACIO.php";
+include "RAMVIRTUAL.php";
+include "CPUVIRTUAL.php";
+include "EMMAGATZEMAMENT.php";
 
-// Verificar conexión
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+// Crear instancias de las clases
+$sgbdManager = new SGBD($conn);
+$configManager = new CONFIGURACIO($conn);
+$ramvManager = new RAMVIRTUAL($conn);
+$cpuvManager = new CPUVIRTUAL($conn); // Nueva clase integrada
+$emmManager = new EMMAGATZEMAMENT($conn); // Nueva clase integrada
 
-// Manejo de solicitudes GET y POST
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['table'])) {
-    // Mostrar registros de la tabla seleccionada
-    $table = $conn->real_escape_string($_GET['table']); // Proteger contra inyección SQL
-    $query = "SELECT * FROM $table";
-    $result = $conn->query($query);
-
-    if ($result && $result->num_rows > 0) {
-        echo "<table><tr>";
-        while ($field = $result->fetch_field()) {
-            echo "<th>{$field->name}</th>";
-        }
-        echo "</tr>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            foreach ($row as $value) {
-                echo "<td>" . htmlspecialchars($value) . "</td>"; // Escapar valores para evitar XSS
-            }
-            echo "</tr>";
-        }
-        echo "</table>";
+// Manejar solicitudes GET para cargar contenido dinámico
+if (isset($_GET['section'])) {
+    if ($_GET['section'] === 'sgbd') {
+        echo $sgbdManager->getHTML(); // Generar HTML dinámico para SGBD
+    } elseif ($_GET['section'] === 'configuracio') {
+        echo $configManager->getHTML(); // Generar HTML dinámico para Configuració
+    } elseif ($_GET['section'] === 'ram') {
+        echo $ramvManager->getHTML(); // Generar HTML dinámico para RAM Virtual
+    } elseif ($_GET['section'] === 'cpu') {
+        echo $cpuvManager->getHTML(); // Generar HTML dinámico para CPU Virtual
+    } elseif ($_GET['section'] === 'emmagatzematge') {
+        echo $emmManager->getHTML(); // Generar HTML dinámico para Emmagatzematge
     } else {
-        echo "<p>No hay registros en la tabla $table.</p>";
+        echo "<h2 class='text-danger'>Secció desconeguda.</h2>";
     }
-    exit(); // Evitar que se cargue el HTML si solo se solicita la tabla
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Insertar nuevo registro en la tabla seleccionada
-    if (isset($_POST['table'], $_POST['field1'], $_POST['field2'])) {
-        $table = $conn->real_escape_string($_POST['table']);
-        $field1 = $conn->real_escape_string($_POST['field1']);
-        $field2 = $conn->real_escape_string($_POST['field2']);
-
-        // Ajusta los campos de acuerdo con la estructura de tus tablas
-        $query = "INSERT INTO $table (campo1, campo2) VALUES ('$field1', '$field2')";
-        if ($conn->query($query)) {
-            echo "<p>Registro añadido correctamente a la tabla $table.</p>";
-        } else {
-            echo "<p>Error al añadir el registro: " . $conn->error . "</p>";
-        }
-    }
+    exit;
 }
 ?>
 
+
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recursos</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Gestió de Recursos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-button {
+            padding: 1rem;
+            border: none;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu-button:hover {
+            background-color: #e2e6ea;
+        }
+
+        .menu-button.active {
+            background-color: #cfe2ff;
+            font-weight: bold;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="main-container">
-        <div class="sidebar">
-            <h2>Menú</h2>
-            <button onclick="loadData('SGBD')">SGBD</button>
-            <button onclick="loadData('CONFIGURACION')">Configuración</button>
-            <button onclick="loadData('RAM')">RAM</button>
-            <button onclick="loadData('CPU')">CPU</button>
-            <button onclick="loadData('EMMAGATZEMAMENT')">Emmagatzemament</button>
-        </div>
-        <div class="content">
-            <div id="form-container">
-                <!-- Aquí se cargará el formulario -->
-            </div>
-            <div id="data-container">
-                <!-- Aquí se mostrarán los registros -->
-            </div>
-        </div>
+    <!-- Menú lateral -->
+    <nav class="sidebar">
+        <button class="menu-button" onclick="loadContent('sgbd', this)">SGBD</button>
+        <button class="menu-button" onclick="loadContent('configuracio', this)">Configuració</button>
+        <button class="menu-button" onclick="loadContent('ram', this)">RAM</button>
+        <button class="menu-button" onclick="loadContent('cpu', this)">CPU</button>
+        <button class="menu-button" onclick="loadContent('emmagatzematge', this)">Emmagatzematge</button>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="content" id="main-content">
+        <!-- Este contenido se reemplazará dinámicamente -->
     </div>
 
     <script>
-        function loadData(table) {
-            fetch(`mantenimentSaaS.php?table=${table}`)
-                .then(response => response.text())
+        // Función para cargar dinámicamente el contenido
+        function loadContent(section, button) {
+            const content = document.getElementById('main-content');
+            const buttons = document.querySelectorAll('.menu-button');
+
+            // Limpiar el estado activo de los botones
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active'); // Marcar el botón seleccionado
+
+            // Eliminar el contenido existente
+            content.innerHTML = ''; // Limpiar completamente el contenedor
+
+            // Realizar la solicitud AJAX
+            fetch(`mantenimentSaaS.php?section=${section}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error en la solicitud: " + response.statusText);
+                    }
+                    return response.text();
+                })
                 .then(data => {
-                    document.getElementById('data-container').innerHTML = data;
-                    document.getElementById('form-container').innerHTML = `
-                        <form class="record-form" method="POST" action="mantenimentSaaS.php">
-                            <h3>Añadir Registro a ${table}</h3>
-                            <label for="field1">Campo 1:</label>
-                            <input type="text" name="field1" required>
-
-                            <label for="field2">Campo 2:</label>
-                            <input type="text" name="field2" required>
-
-                            <input type="hidden" name="table" value="${table}">
-                            <input type="submit" value="Guardar">
-                        </form>
-                    `;
+                    content.innerHTML = data; // Insertar el contenido dinámico
+                })
+                .catch(error => {
+                    console.error("Error cargando contenido:", error);
+                    content.innerHTML = `<h2 class="text-danger">Error carregant la secció.</h2>`;
                 });
         }
     </script>
