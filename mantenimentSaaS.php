@@ -1,38 +1,118 @@
 <?php
-// Incluir el archivo de conexión y las clases necesarias
+// Incluir las clases necesarias
 include "connection.php";
-include "SGBD.php";
 include "CONFIGURACIO.php";
-include "RAMVIRTUAL.php";
 include "CPUVIRTUAL.php";
 include "EMMAGATZEMAMENT.php";
+include "RAMVIRTUAL.php";
+include "SGBD.php";
 
 // Crear instancias de las clases
-$sgbdManager = new SGBD($conn);
 $configManager = new CONFIGURACIO($conn);
-$ramvManager = new RAMVIRTUAL($conn);
-$cpuvManager = new CPUVIRTUAL($conn); // Nueva clase integrada
-$emmManager = new EMMAGATZEMAMENT($conn); // Nueva clase integrada
+$cpuManager = new CPUVIRTUAL($conn);
+$storageManager = new EMMAGATZEMAMENT($conn);
+$ramManager = new RAMVIRTUAL($conn);
+$sgbdManager = new SGBD($conn);
 
-// Manejar solicitudes GET para cargar contenido dinámico
-if (isset($_GET['section'])) {
-    if ($_GET['section'] === 'sgbd') {
-        echo $sgbdManager->getHTML(); // Generar HTML dinámico para SGBD
-    } elseif ($_GET['section'] === 'configuracio') {
-        echo $configManager->getHTML(); // Generar HTML dinámico para Configuració
-    } elseif ($_GET['section'] === 'ram') {
-        echo $ramvManager->getHTML(); // Generar HTML dinámico para RAM Virtual
-    } elseif ($_GET['section'] === 'cpu') {
-        echo $cpuvManager->getHTML(); // Generar HTML dinámico para CPU Virtual
-    } elseif ($_GET['section'] === 'emmagatzematge') {
-        echo $emmManager->getHTML(); // Generar HTML dinámico para Emmagatzematge
-    } else {
-        echo "<h2 class='text-danger'>Secció desconeguda.</h2>";
+// Manejar solicitudes POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $current_section = $_GET['section'] ?? 'configuracio'; // Obtener la sección actual
+
+    // CONFIGURACIO
+    if (isset($_POST['add_configuracio'])) {
+        $port = $_POST['port'] ?? null;
+        if ($port)
+            $configManager->addConfiguracio($port);
+    } elseif (isset($_POST['delete_configuracio'])) {
+        $idConfig = $_POST['idConfig'] ?? null;
+        if ($idConfig)
+            $configManager->deleteConfiguracio($idConfig);
+    } elseif (isset($_POST['update_configuracio'])) {
+        $idConfig = $_POST['idConfig'] ?? null;
+        $port = $_POST['port'] ?? null;
+        if ($idConfig && $port)
+            $configManager->updateConfiguracio($idConfig, $port);
     }
+
+    // CPUVIRTUAL
+    if (isset($_POST['add_cpuvirtual'])) {
+        $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($velocitatRellotge && $preu)
+            $cpuManager->addCPUVIRTUAL($velocitatRellotge, $preu);
+    } elseif (isset($_POST['delete_cpuvirtual'])) {
+        $idCPUV = $_POST['idCPUV'] ?? null;
+        if ($idCPUV)
+            $cpuManager->deleteCPUVIRTUAL($idCPUV);
+    } elseif (isset($_POST['update_cpuvirtual'])) {
+        $idCPUV = $_POST['idCPUV'] ?? null;
+        $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($idCPUV && $velocitatRellotge && $preu)
+            $cpuManager->updateCPUVIRTUAL($idCPUV, $velocitatRellotge, $preu);
+    }
+
+    // EMMAGATZEMAMENT
+    if (isset($_POST['add_emmagatzemament'])) {
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($capacitat && $preu)
+            $storageManager->addEmmagatzemament($capacitat, $preu);
+    } elseif (isset($_POST['delete_emmagatzemament'])) {
+        $idEmmagatzemament = $_POST['idEmmagatzemament'] ?? null;
+        if ($idEmmagatzemament)
+            $storageManager->deleteEmmagatzemament($idEmmagatzemament);
+    } elseif (isset($_POST['update_emmagatzemament'])) {
+        $idEmmagatzemament = $_POST['idEmmagatzemament'] ?? null;
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($idEmmagatzemament && $capacitat && $preu)
+            $storageManager->updateEmmagatzemament($idEmmagatzemament, $capacitat, $preu);
+    }
+
+    // RAMVIRTUAL
+    if (isset($_POST['add_ramvirtual'])) {
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($capacitat && $preu)
+            $ramManager->addRAMVIRTUAL($capacitat, $preu);
+    } elseif (isset($_POST['delete_ramvirtual'])) {
+        $idRAMV = $_POST['idRAMV'] ?? null;
+        if ($idRAMV)
+            $ramManager->deleteRAMVIRTUAL($idRAMV);
+    } elseif (isset($_POST['update_ramvirtual'])) {
+        $idRAMV = $_POST['idRAMV'] ?? null;
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        if ($idRAMV && $capacitat && $preu)
+            $ramManager->updateRAMVIRTUAL($idRAMV, $capacitat, $preu);
+    }
+
+    // SGBD
+    if (isset($_POST['add_sgbd'])) {
+        $nom = $_POST['nom'] ?? null;
+        $versio = $_POST['versio'] ?? null;
+        $idConfig = $_POST['idConfig'] ?? null;
+        if ($nom && $versio && $idConfig)
+            $sgbdManager->addSGBD($nom, $versio, $idConfig);
+    } elseif (isset($_POST['delete_sgbd'])) {
+        $idSGBD = $_POST['idSGBD'] ?? null;
+        if ($idSGBD)
+            $sgbdManager->deleteSGBD($idSGBD);
+    } elseif (isset($_POST['update_sgbd'])) {
+        $idSGBD = $_POST['idSGBD'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        $versio = $_POST['versio'] ?? null;
+        $idConfig = $_POST['idConfig'] ?? null;
+        if ($idSGBD && $nom && $versio && $idConfig)
+            $sgbdManager->updateSGBD($idSGBD, $nom, $versio, $idConfig);
+    }
+
+    // Redirigir después de procesar
+    header("Location: " . $_SERVER['PHP_SELF'] . "?section=" . $current_section);
     exit;
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="ca">
@@ -43,28 +123,19 @@ if (isset($_GET['section'])) {
     <title>Gestió de Recursos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            height: 100vh;
-            margin: 0;
-        }
-
         .sidebar {
             width: 250px;
             background-color: #f8f9fa;
             border-right: 1px solid #dee2e6;
-            display: flex;
-            flex-direction: column;
+            height: 100vh;
         }
 
         .menu-button {
             padding: 1rem;
             border: none;
             background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            text-align: center;
             cursor: pointer;
-            transition: background-color 0.3s;
+            width: 100%;
         }
 
         .menu-button:hover {
@@ -77,58 +148,60 @@ if (isset($_GET['section'])) {
         }
 
         .content {
-            flex: 1;
             padding: 2rem;
-            overflow-y: auto;
+            flex: 1;
         }
     </style>
 </head>
 
 <body>
-    <!-- Menú lateral -->
-    <nav class="sidebar">
-        <button class="menu-button" onclick="loadContent('sgbd', this)">SGBD</button>
-        <button class="menu-button" onclick="loadContent('configuracio', this)">Configuració</button>
-        <button class="menu-button" onclick="loadContent('ram', this)">RAM</button>
-        <button class="menu-button" onclick="loadContent('cpu', this)">CPU</button>
-        <button class="menu-button" onclick="loadContent('emmagatzematge', this)">Emmagatzematge</button>
-    </nav>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <button
+                class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'configuracio' ? 'active' : '' ?>"
+                onclick="location.href='?section=configuracio'">Configuració</button>
+            <button
+                class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'cpuvirtual' ? 'active' : '' ?>"
+                onclick="location.href='?section=cpuvirtual'">CPU</button>
+            <button
+                class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'emmagatzemament' ? 'active' : '' ?>"
+                onclick="location.href='?section=emmagatzemament'">Emmagatzematge</button>
+            <button
+                class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'ramvirtual' ? 'active' : '' ?>"
+                onclick="location.href='?section=ramvirtual'">RAM</button>
+            <button class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'sgbd' ? 'active' : '' ?>"
+                onclick="location.href='?section=sgbd'">SGBD</button>
+        </nav>
 
-    <!-- Contenido principal -->
-    <div class="content" id="main-content">
-        <!-- Este contenido se reemplazará dinámicamente -->
+        <!-- Content -->
+        <div class="content">
+            <?php
+            // Mostrar la sección correspondiente
+            $section = $_GET['section'] ?? 'configuracio';
+            switch ($section) {
+                case 'configuracio':
+                    echo $configManager->getHTML();
+                    break;
+                case 'cpuvirtual':
+                    echo $cpuManager->getHTML();
+                    break;
+                case 'emmagatzemament':
+                    echo $storageManager->getHTML();
+                    break;
+                case 'ramvirtual':
+                    echo $ramManager->getHTML();
+                    break;
+                case 'sgbd':
+                    echo $sgbdManager->getHTML();
+                    break;
+                default:
+                    echo "<h2 class='text-danger'>Secció desconeguda.</h2>";
+                    break;
+            }
+            ?>
+        </div>
     </div>
-
-    <script>
-        // Función para cargar dinámicamente el contenido
-        function loadContent(section, button) {
-            const content = document.getElementById('main-content');
-            const buttons = document.querySelectorAll('.menu-button');
-
-            // Limpiar el estado activo de los botones
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active'); // Marcar el botón seleccionado
-
-            // Eliminar el contenido existente
-            content.innerHTML = ''; // Limpiar completamente el contenedor
-
-            // Realizar la solicitud AJAX
-            fetch(`mantenimentSaaS.php?section=${section}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Error en la solicitud: " + response.statusText);
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    content.innerHTML = data; // Insertar el contenido dinámico
-                })
-                .catch(error => {
-                    console.error("Error cargando contenido:", error);
-                    content.innerHTML = `<h2 class="text-danger">Error carregant la secció.</h2>`;
-                });
-        }
-    </script>
 </body>
 
 </html>

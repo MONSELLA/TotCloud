@@ -8,7 +8,7 @@ class CPUVIRTUAL
         $this->conn = $db_connection;
     }
 
-    public function addCPUV($velocitatRellotge, $preu)
+    public function addCPUVIRTUAL($velocitatRellotge, $preu)
     {
         $velocitatRellotge = $this->conn->real_escape_string($velocitatRellotge);
         $preu = $this->conn->real_escape_string($preu);
@@ -16,58 +16,94 @@ class CPUVIRTUAL
         return $this->conn->query($query);
     }
 
-    public function deleteCPUV($idCPUV)
+    public function deleteCPUVIRTUAL($idCPUV)
     {
         $idCPUV = $this->conn->real_escape_string($idCPUV);
         $query = "DELETE FROM CPU_VIRTUAL WHERE idCPUV = '$idCPUV'";
         return $this->conn->query($query);
     }
 
+    public function updateCPUVIRTUAL($idCPUV, $velocitatRellotge, $preu)
+    {
+        $idCPUV = $this->conn->real_escape_string($idCPUV);
+        $velocitatRellotge = $this->conn->real_escape_string($velocitatRellotge);
+        $preu = $this->conn->real_escape_string($preu);
+        $query = "UPDATE CPU_VIRTUAL SET velocitatRellotge = '$velocitatRellotge', preu = '$preu' WHERE idCPUV = '$idCPUV'";
+        return $this->conn->query($query);
+    }
+
     public function getHTML()
     {
-        $cpuv_result = $this->conn->query("SELECT * FROM CPU_VIRTUAL");
-
-        ob_start();
-        ?>
-        <form method="POST" class="mb-4 border p-4 bg-white shadow-sm rounded">
-            <h4 class="text-primary">Afegir nova CPU Virtual</h4>
+        $result = $this->conn->query("SELECT * FROM CPU_VIRTUAL");
+        ob_start(); ?>
+        <form method="POST" class="mb-4">
             <div class="mb-3">
-                <label for="velocitatRellotge" class="form-label">Velocitat de Rellotge (GHz):</label>
-                <input type="number" step="0.1" name="velocitatRellotge" id="velocitatRellotge" class="form-control" required>
+                <label for="velocitatRellotge" class="form-label">Velocitat Rellotge:</label>
+                <input type="number" step="0.01" name="velocitatRellotge" id="velocitatRellotge" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="preu" class="form-label">Preu (€):</label>
+                <label for="preu" class="form-label">Preu:</label>
                 <input type="number" step="0.01" name="preu" id="preu" class="form-control" required>
             </div>
-            <button type="submit" name="add_cpuv" class="btn btn-success w-100">Afegir CPU Virtual</button>
+            <button type="submit" name="add_cpuvirtual" class="btn btn-success w-100">Afegir CPU Virtual</button>
         </form>
-
-        <h4 class="text-primary">Registres de CPU Virtual</h4>
-        <table class="table table-striped bg-white shadow-sm rounded">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Velocitat de Rellotge</th>
+                    <th>Velocitat Rellotge</th>
                     <th>Preu</th>
                     <th>Accions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($cpuv = $cpuv_result->fetch_assoc()): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <td><?= $cpuv['idCPUV'] ?></td>
-                        <td><?= htmlspecialchars($cpuv['velocitatRellotge']) ?> GHz</td>
-                        <td><?= htmlspecialchars($cpuv['preu']) ?> €</td>
+                        <td><?= htmlspecialchars($row['idCPUV']); ?></td>
+                        <td><?= htmlspecialchars($row['velocitatRellotge']); ?></td>
+                        <td><?= htmlspecialchars($row['preu']); ?></td>
                         <td>
                             <form method="POST" style="display: inline;">
-                                <input type="hidden" name="idCPUV" value="<?= $cpuv['idCPUV'] ?>">
-                                <button type="submit" name="delete_cpuv" class="btn btn-danger btn-sm">Eliminar</button>
+                                <input type="hidden" name="idCPUV" value="<?= $row['idCPUV']; ?>">
+                                <button type="submit" name="delete_cpuvirtual" class="btn btn-danger">Eliminar</button>
                             </form>
+                            <button type="button" class="btn btn-primary"
+                                onclick="mostrarFormularioActualizar(<?= $row['idCPUV']; ?>, '<?= htmlspecialchars($row['velocitatRellotge']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
+
+        <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
+            <form method="POST">
+                <input type="hidden" name="idCPUV" id="idCPUV-actualizar">
+                <div class="mb-3">
+                    <label for="velocitatRellotge-actualizar" class="form-label">Velocitat Rellotge:</label>
+                    <input type="number" step="0.01" name="velocitatRellotge" id="velocitatRellotge-actualizar"
+                        class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="preu-actualizar" class="form-label">Preu:</label>
+                    <input type="number" step="0.01" name="preu" id="preu-actualizar" class="form-control" required>
+                </div>
+                <button type="submit" name="update_cpuvirtual" class="btn btn-success">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
+            </form>
+        </div>
+
+        <script>
+            function mostrarFormularioActualizar(idCPUV, velocitatRellotge, preu) {
+                document.getElementById('idCPUV-actualizar').value = idCPUV;
+                document.getElementById('velocitatRellotge-actualizar').value = velocitatRellotge;
+                document.getElementById('preu-actualizar').value = preu;
+                document.getElementById('formulario-actualizar').style.display = 'block';
+            }
+
+            function cerrarFormulario() {
+                document.getElementById('formulario-actualizar').style.display = 'none';
+            }
+        </script>
         <?php
         return ob_get_clean();
     }

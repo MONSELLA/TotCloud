@@ -22,23 +22,26 @@ class CONFIGURACIO
         return $this->conn->query($query);
     }
 
+    public function updateConfiguracio($idConfig, $port)
+    {
+        $idConfig = $this->conn->real_escape_string($idConfig);
+        $port = $this->conn->real_escape_string($port);
+        $query = "UPDATE CONFIGURACIO SET port = '$port' WHERE idConfig = '$idConfig'";
+        return $this->conn->query($query);
+    }
+
     public function getHTML()
     {
-        $config_result = $this->conn->query("SELECT * FROM CONFIGURACIO");
-
-        ob_start();
-        ?>
-        <h4 class="text-primary">Afegir una nova Configuració</h4>
-        <form method="POST" class="mb-4 border p-4 bg-white shadow-sm rounded">
+        $result = $this->conn->query("SELECT * FROM CONFIGURACIO");
+        ob_start(); ?>
+        <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="port" class="form-label">Port:</label>
                 <input type="number" name="port" id="port" class="form-control" required>
             </div>
             <button type="submit" name="add_configuracio" class="btn btn-success w-100">Afegir Configuració</button>
         </form>
-
-        <h4 class="text-primary">Registres de Configuració</h4>
-        <table class="table table-striped bg-white shadow-sm rounded">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -47,20 +50,50 @@ class CONFIGURACIO
                 </tr>
             </thead>
             <tbody>
-                <?php while ($config = $config_result->fetch_assoc()): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <td><?= $config['idConfig'] ?></td>
-                        <td><?= htmlspecialchars($config['port']) ?></td>
+                        <td><?= htmlspecialchars($row['idConfig']); ?></td>
+                        <td><?= htmlspecialchars($row['port']); ?></td>
                         <td>
+                            <!-- Botón Eliminar -->
                             <form method="POST" style="display: inline;">
-                                <input type="hidden" name="idConfig" value="<?= $config['idConfig'] ?>">
-                                <button type="submit" name="delete_configuracio" class="btn btn-danger btn-sm">Eliminar</button>
+                                <input type="hidden" name="idConfig" value="<?= $row['idConfig']; ?>">
+                                <button type="submit" name="delete_configuracio" class="btn btn-danger">Eliminar</button>
                             </form>
+
+                            <!-- Botón Actualizar -->
+                            <button type="button" class="btn btn-primary"
+                                onclick="mostrarFormularioActualizar(<?= $row['idConfig']; ?>, '<?= htmlspecialchars($row['port']); ?>')">Actualizar</button>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
+
+        <!-- Formulario para Actualizar -->
+        <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
+            <form method="POST">
+                <input type="hidden" name="idConfig" id="idConfig-actualizar">
+                <div class="mb-3">
+                    <label for="port-actualizar" class="form-label">Port:</label>
+                    <input type="number" name="port" id="port-actualizar" class="form-control" required>
+                </div>
+                <button type="submit" name="update_configuracio" class="btn btn-success">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
+            </form>
+        </div>
+
+        <script>
+            function mostrarFormularioActualizar(idConfig, port) {
+                document.getElementById('idConfig-actualizar').value = idConfig;
+                document.getElementById('port-actualizar').value = port;
+                document.getElementById('formulario-actualizar').style.display = 'block';
+            }
+
+            function cerrarFormulario() {
+                document.getElementById('formulario-actualizar').style.display = 'none';
+            }
+        </script>
         <?php
         return ob_get_clean();
     }
