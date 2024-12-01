@@ -97,13 +97,34 @@ switch ($queryType) {
                 WHERE nom LIKE ?";
         }
         break;
+
+    case 'cpu_virtual';
+        $sql = "SELECT idCPUV, velocitatRellotge, preu
+                FROM cpu_virtual";
+        break;
+
+    case 'ram_virtual';
+        $sql = "SELECT idRAMV, capacitat, preu
+                FROM ram_virtual";
+        break;
+
+    case 'emmagatzemament';
+        $sql = "SELECT idEmmagatzemament, capacitat, preu
+                FROM emmagatzemament";
+        break;
+
+    case 'sgbd';
+        $sql = "SELECT idSGBD, nom, versio
+                FROM sgbd";
+        break;
+
     default:
         // Si no es reconeix el tipus de consulta, retornem un array buit
         echo json_encode([]);
         exit;
 }
 
-if ($queryType != 'sistema_operatiu') {
+if (($queryType != 'sistema_operatiu') && ($queryType != 'sgbd')) {
     $sql .= " ORDER BY preu $asc";
 }
 

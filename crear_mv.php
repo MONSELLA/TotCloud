@@ -1,10 +1,6 @@
 <?php
 include("connection.php");
 
-// Mostrar errors per depuració
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Iniciar la sessió
 session_start();
 
@@ -12,7 +8,6 @@ session_start();
 header('Content-Type: application/json');
 
 try {
-    $_SESSION["id"] = 1;
     // Rebre les dades JSON enviades des de JavaScript
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);

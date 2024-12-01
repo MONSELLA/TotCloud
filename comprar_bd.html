@@ -24,10 +24,6 @@
             margin-top: auto;
         }
 
-        #searchBar {
-            display: none;
-        }
-
         #clearFilterButton {
             display: none;
         }
@@ -65,23 +61,16 @@
                                 Filtres
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="filtroMenu">
-                                <li><a class="dropdown-item" href="#" onclick="applyFilter('cpu')">CPU</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="applyFilter('gpu')">GPU</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="applyFilter('disc_dur')">Disc Dur</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#" onclick="applyFilter('ram')">RAM</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="applyFilter('sistema_operatiu')">Sistema
-                                        Operatiu</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('cpu_virtual')">CPU
+                                        VIRTUAL</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('ram_virtual')">RAM
+                                        VIRTUAL</a></li>
+                                <li><a class="dropdown-item" href="#"
+                                        onclick="applyFilter('emmagatzemament')">EMMAGATZEMAMENT</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('sgbd')">SGBD</a></li>
                             </ul>
                             <!-- Botó per eliminar el filtre -->
                             <button class="btn btn-danger" id="clearFilterButton" onclick="clearFilter()">X</button>
-                        </div>
-
-                        <!-- Barra de cerca, inicialment oculta -->
-                        <div id="searchBar">
-                            <div class="col-12">
-                                <input type="text" class="form-control" id="searchInput" oninput="filterBySearch()">
-                            </div>
                         </div>
 
                         <!-- Filtres a la dreta -->
@@ -124,50 +113,40 @@
                 </div>
                 <div class="modal-body">
                     <!-- Contingut de la cistella -->
-                    <h5>CPUs</h5>
-                    <ul id="cartCpus" class="list-group mb-3"></ul>
-                    <h5>GPUs</h5>
-                    <ul id="cartGpus" class="list-group mb-3"></ul>
-                    <h5>Discs Durs</h5>
-                    <ul id="cartDiscsDurs" class="list-group mb-3"></ul>
-                    <h5>RAMs</h5>
-                    <ul id="cartRams" class="list-group mb-3"></ul>
-                    <h5>Sistema Operatiu</h5>
-                    <ul id="cartSisOp" class="list-group mb-3"></ul>
+                    <h5>CPU</h5>
+                    <ul id="cartCpu" class="list-group mb-3"></ul>
+                    <h5>RAM</h5>
+                    <ul id="cartRam" class="list-group mb-3"></ul>
+                    <h5>Emmagatzemament</h5>
+                    <ul id="cartEmmagatzemament" class="list-group mb-3"></ul>
+                    <h5>SGBD</h5>
+                    <ul id="cartSGBD" class="list-group mb-3"></ul>
                     <h4>Total: <span id="cartTotal">0</span>€</h4>
                 </div>
                 <div class="modal-footer">
                     <button id="finalitzar" type="button" class="btn btn-primary"
-                        onclick="mostrarFormMV()">Següent</button>
+                        onclick="mostrarFormBD()">Següent</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal per crear la MV -->
+    <!-- Modal per crear la BD -->
     <div class="modal fade" id="cartModal2" tabindex="-1" aria-labelledby="cartModal2Label" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="cartModal2Label">Crear Máquina Virtual</h1>
+                    <h1 class="modal-title fs-5" id="cartModal2Label">Crear Base de dades</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Formulari per a la màquina virtual -->
-                    <h6>Es crearà amb els components que has seleccionat</h6>
+                    <p>Es crearà amb els components que has seleccionat</p>
                     <form id="vmForm">
                         <div class="mb-3">
-                            <label for="vmName" class="form-label">Nom</label>
-                            <input type="text" class="form-control" id="vmName"
-                                placeholder="Introdueixi el nom de la màquina virtual...">
-                        </div>
-                        <div class="mb-3">
-                            <label for="vmIp" class="form-label">Adreça IP</label>
-                            <input type="text" class="form-control" id="vmIp" placeholder="Ex: 192.168.1.1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="vmMac" class="form-label">Adreça MAC</label>
-                            <input type="text" class="form-control" id="vmMac" placeholder="Ex: 00:1A:2B:3C:4D:5E">
+                            <label for="bdName" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="bdName"
+                                placeholder="Introdueixi el nom de la base de dades...">
                         </div>
                     </form>
                     <!-- Missatge d'error -->
@@ -189,11 +168,10 @@
         let brand = "";
         // Variables per guardar els components que l'usuari vol comprar 
         // Es guarda l'id com a clau i la informació del component com atribut en un array
-        let cpus = new Map();
-        let gpus = new Map();
-        let discs_durs = new Map();
-        let sis_op = new Map();
-        let rams = new Map();
+        let cpu = new Map();
+        let emmagatzemament = new Map();
+        let sgbd = new Map();
+        let ram = new Map();
 
         // Funció per agafar els components de la base de dades
         function fetchData(queryType, asc, brand, callback) {
@@ -231,18 +209,6 @@
         // Funció per aplicar els filtres
         function applyFilter(filter) {
             currentFilter = filter; // Emmagatzema el filtre actual
-            document.getElementById('searchBar').style.display = 'block';
-            // Mostrar la barra de cerca només per a "CPU" o "GPU"
-            if (filter == 'cpu' || filter == 'gpu') {
-                document.getElementById('searchInput').placeholder = 'Marca del component...';
-            } else if (filter == 'ram') {
-                document.getElementById('searchInput').placeholder = 'Generació de la RAM...';
-            } else if (filter == 'disc_dur') {
-                document.getElementById('searchInput').placeholder = 'Tipus del Disc Dur...';
-            } else {
-                document.getElementById('searchInput').placeholder = 'Nom del SO...';
-            }
-
             document.getElementById('clearFilterButton').style.display = 'inline-block'; // Mostra el botó per eliminar el filtre
             ferConsulta();
         }
@@ -260,13 +226,6 @@
             brand = "";
             document.getElementById('componentesContainer').innerHTML = `<p class="text-center text-secondary">Seleccioneu un filtre per mostrar els components disponibles.</p>`;
             document.getElementById('clearFilterButton').style.display = 'none'; // Amaga el botó per eliminar el filtre
-            document.getElementById('searchBar').style.display = 'none'; // Amaga la barra de cerca
-        }
-
-        // Funció per filtrar per la cerca en el camp d'entrada
-        function filterBySearch() {
-            brand = document.getElementById('searchInput').value.toLowerCase();
-            ferConsulta();
         }
 
         // Funció per fer la consulta i obtenir els components segons el filtre
@@ -288,101 +247,79 @@
         function mostrarComponents(data, currentFilter) {
             let html = '';
             switch (currentFilter) {
-                case 'cpu':
+                case 'cpu_virtual':
                     data.forEach(component => {
                         disabled = false;
-                        if (cpus.has(component.idcpu)) {
+                        if (cpu.size > 0) {
                             disabled = true;
                         }
                         html += `
                         <div class="col-md-4 mb-4">
                             <div class="card shadow">
                                 <div class="card-body">
-                                    <h5 class="card-title">${component.nomMarca} ${component.nom}</h5>
-                                    <p class="card-text">Nuclis: ${component.nuclis}</p>
+                                    <h5>CPU</h5>
                                     <p class="card-text">Velocitat de Rellotge: ${component.velocitatRellotge}GHz</p>
                                     <p class="card-text">Preu: ${component.preu}€</p>
-                                    <button id="boto_${component.idcpu}" class="btn btn-success" onclick="addToCart('cpu', ${component.idcpu}, ${component.preu}, '${component.nomMarca}', '${component.nom}')" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                    <button id="boto_${component.idCPUV}" class="btn btn-success" onclick="addToCart('cpu_virtual', ${component.idCPUV}, ${component.preu}, ${component.velocitatRellotge})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
                         `;
                     });
                     break;
-                case 'gpu':
+                case 'ram_virtual':
                     data.forEach(component => {
                         disabled = false;
-                        if (gpus.has(component.idgpu)) {
+                        if (ram.size > 0) {
                             disabled = true;
                         }
                         html += `
                         <div class="col-md-4 mb-4">
                             <div class="card shadow">
                                 <div class="card-body">
-                                    <h5 class="card-title">${component.nomMarca} ${component.nom}</h5>
-                                    <p class="card-text">Nuclis: ${component.nuclis}</p>
-                                    <p class="card-text">VRAM -><br>Generació: ${component.generacio}GB<br>Capacitat: ${component.capacitat}</p>
-                                    <p class="card-text">Preu: ${component.preu}€</p>
-                                    <button id="boto_${component.idgpu}" class="btn btn-success" onclick="addToCart('gpu', ${component.idgpu}, ${component.preu}, '${component.nomMarca}', '${component.nom}')" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                    });
-                    break;
-                case 'disc_dur':
-                    data.forEach(component => {
-                        disabled = false;
-                        if (discs_durs.has(component.iddisc)) {
-                            disabled = true;
-                        }
-                        html += `
-                        <div class="col-md-4 mb-4">
-                            <div class="card shadow">
-                                <div class="card-body">
-                                    <h5 class="card-title">${component.nomTipus}</h5>
+                                    <h5>RAM</h5>
                                     <p class="card-text">Capacitat: ${component.capacitat}GB</p>
                                     <p class="card-text">Preu: ${component.preu}€</p>
-                                    <button id="boto_${component.iddisc}" class="btn btn-success" onclick="addToCart('disc_dur', ${component.iddisc}, ${component.preu}, '${component.nomTipus}', ${component.capacitat})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                    <button id="boto_${component.idRAMV}" class="btn btn-success" onclick="addToCart('ram_virtual', ${component.idRAMV}, ${component.preu}, ${component.capacitat})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
                         `;
                     });
                     break;
-                case 'ram':
+                case 'emmagatzemament':
+                    disabled = false;
+                    if (emmagatzemament.size > 0) {
+                        disabled = true;
+                    }
                     data.forEach(component => {
-                        disabled = false;
-                        if (rams.has(component.idram)) {
-                            disabled = true;
-                        }
                         html += `
                         <div class="col-md-4 mb-4">
                             <div class="card shadow">
                                 <div class="card-body">
-                                    <h5 class="card-title">${component.generacio}</h5>
+                                    <h5>EMMAGATZEMAMENT</h5>
                                     <p class="card-text">Capacitat: ${component.capacitat}GB</p>
                                     <p class="card-text">Preu: ${component.preu}€</p>
-                                    <button id="boto_${component.idram}" class="btn btn-success" onclick="addToCart('ram', ${component.idram}, ${component.preu}, '${component.generacio}', ${component.capacitat})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                    <button id="boto_${component.idEmmagatzemament}" class="btn btn-success" onclick="addToCart('emmagatzemament', ${component.idEmmagatzemament}, ${component.preu}, ${component.capacitat})">Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
                         `;
                     });
                     break;
-                case 'sistema_operatiu':
+                case 'sgbd':
+                    disabled = false;
+                    if (sgbd.size > 0) {
+                        disabled = true;
+                    }
                     data.forEach(component => {
-                        disabled = false;
-                        if (sis_op.size > 0) {
-                            disabled = true;
-                        }
                         html += `
                         <div class="col-md-4 mb-4">
                             <div class="card shadow">
                                 <div class="card-body">
-                                    <h5 class="card-title">${component.nom}</h5>
+                                    <h5 class="card-text">${component.nom}</h5>
                                     <p class="card-text">Versió: ${component.versio}</p>
-                                    <button id="boto_${component.idSO}" class="btn btn-success" onclick="addToCart('sistema_operatiu', ${component.idSO}, null, '${component.nom}', '${component.versio}')" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                    <button id="boto_${component.idSGBD}" class="btn btn-success" onclick="addToCart('sgbd', ${component.idSGBD}, null, '${component.nom} ${component.versio}')">Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
@@ -396,50 +333,43 @@
         }
 
         // Funció per afegir un component a la cistella
-        function addToCart(componentType, componentId, componentPrice, info1, info2) {
+        function addToCart(componentType, componentId, componentPrice, info) {
             switch (componentType) {
-                case 'cpu':
-                    cpus.set(componentId, [componentPrice, info1, info2]);
-                    document.getElementById("boto_" + componentId).disabled = true;
+                case 'cpu_virtual':
+                    cpu.set(componentId, [componentPrice, info]);
                     break;
-                case 'gpu':
-                    gpus.set(componentId, [componentPrice, info1, info2]);
-                    document.getElementById("boto_" + componentId).disabled = true;
+                case 'ram_virtual':
+                    ram.set(componentId, [componentPrice, info]);
                     break;
-                case 'disc_dur':
-                    discs_durs.set(componentId, [componentPrice, info1, info2]);
-                    document.getElementById("boto_" + componentId).disabled = true;
+                case 'emmagatzemament':
+                    emmagatzemament.set(componentId, [componentPrice, info]);
                     break;
-                case 'ram':
-                    rams.set(componentId, [componentPrice, info1, info2]);
-                    document.getElementById("boto_" + componentId).disabled = true;
-                    break;
-                case 'sistema_operatiu':
-                    sis_op.set(componentId, [componentPrice, info1, info2]);
-                    //Desactivar tots els botons associats a un sistema operatiu mentre hi hagi un a la cistella
-                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
-                        if (button.id.startsWith("boto_")) {
-                            button.disabled = true;
-                        }
-                    });
+                case 'sgbd':
+                    sgbd.set(componentId, [componentPrice, info]);
                     break;
                 default:
                     console.error("Tipus de component desconegut:", componentType);
                     return;
             }
+            //Desactivar tots els botons associats a un component si hi ha un a la cistella
+            document.querySelectorAll("button[id^='boto_']").forEach(button => {
+                if (button.id.startsWith("boto_")) {
+                    button.disabled = true;
+                }
+            });
+
             updateCartCount();
             console.log(`Cistella actual: 
-                CPUs: ${Array.from(cpus.entries())},
-                GPUs: ${Array.from(gpus.entries())},
-                Discs durs: ${Array.from(discs_durs.entries())},
-                RAMs: ${Array.from(rams.entries())},
-                Sistemes operatius: ${Array.from(sis_op.entries())}
+                CPU: ${Array.from(cpu.entries())},
+                Emm: ${Array.from(emmagatzemament.entries())},
+                Ram: ${Array.from(ram.entries())},
+                sgbd: ${Array.from(sgbd.entries())}
             `);
         }
 
         // Funció per actualitzar el contador de la cistella
         function updateCartCount() {
-            const count = cpus.size + gpus.size + discs_durs.size + rams.size + sis_op.size;
+            const count = cpu.size + emmagatzemament.size + ram.size + sgbd.size;
             document.getElementById('cartCount').innerText = count;
         }
 
@@ -452,64 +382,49 @@
 
 
             // Pujar les llistes
-            const cartCpus = document.getElementById('cartCpus');
-            const cartGpus = document.getElementById('cartGpus');
-            const cartDiscsDurs = document.getElementById('cartDiscsDurs');
-            const cartRams = document.getElementById('cartRams');
-            const cartSisOp = document.getElementById('cartSisOp');
+            const cartCpu = document.getElementById('cartCpu');
+            const cartSGBD = document.getElementById('cartSGBD');
+            const cartEmmagatzemament = document.getElementById('cartEmmagatzemament');
+            const cartRam = document.getElementById('cartRam');
             const cartTotal = document.getElementById('cartTotal');
 
             // Pujar els elements a les llistes
-            cartCpus.innerHTML = '';
-            cpus.forEach((arr, id) => {
-                cartCpus.innerHTML += `<li class="list-group-item">CPU ${arr[1]} ${arr[2]}, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('cpu', ${id})">Eliminar</button></li>`;
+            cartCpu.innerHTML = '';
+            cpu.forEach((arr, id) => {
+                cartCpu.innerHTML += `<li class="list-group-item">${arr[1]}GHz, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('cpu_virtual', ${id})">Eliminar</button></li>`;
             });
 
-            cartGpus.innerHTML = '';
-            gpus.forEach((arr, id) => {
-                cartGpus.innerHTML += `<li class="list-group-item">GPU ${arr[1]} ${arr[2]}, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('gpu', ${id})">Eliminar</button></li>`;
+            cartRam.innerHTML = '';
+            ram.forEach((arr, id) => {
+                cartRam.innerHTML += `<li class="list-group-item">${arr[1]}GB, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('ram_virtual', ${id})">Eliminar</button></li>`;
             });
 
-            cartDiscsDurs.innerHTML = '';
-            discs_durs.forEach((arr, id) => {
-                cartDiscsDurs.innerHTML += `<li class="list-group-item">Disc Dur ${arr[1]} ${arr[2]}, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('disc_dur', ${id})">Eliminar</button></li>`;
+            cartEmmagatzemament.innerHTML = '';
+            emmagatzemament.forEach((arr, id) => {
+                cartEmmagatzemament.innerHTML += `<li class="list-group-item">${arr[1]}GB, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('emmagatzemament', ${id})">Eliminar</button></li>`;
             });
 
-            cartRams.innerHTML = '';
-            rams.forEach((arr, id) => {
-                cartRams.innerHTML += `<li class="list-group-item">RAM ${arr[1]} ${arr[2]}, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('ram', ${id})">Eliminar</button></li>`;
-            });
-
-            cartSisOp.innerHTML = '';
-            sis_op.forEach((arr, id) => {
-                cartSisOp.innerHTML += `<li class="list-group-item">${arr[1]} ${arr[2]}, Preu: N/A <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('sistema_operatiu', ${id})">Eliminar</button></li>`;
+            cartSGBD.innerHTML = '';
+            sgbd.forEach((arr, id) => {
+                cartSGBD.innerHTML += `<li class="list-group-item">${arr[1]}, Preu: N/A <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('sgbd', ${id})">Eliminar</button></li>`;
             });
 
             // Calcular el total
             let total = 0;
-            cpus.forEach(arr => {
+            cpu.forEach(arr => {
                 total += parseFloat(arr[0]);
             });
-            gpus.forEach(arr => {
+            ram.forEach(arr => {
                 total += parseFloat(arr[0]);
             });
-            discs_durs.forEach(arr => {
+            emmagatzemament.forEach(arr => {
                 total += parseFloat(arr[0]);
-            });
-            rams.forEach(arr => {
-                total += parseFloat(arr[0]);
-            });
-            sis_op.forEach(arr => {
-                // Suposem que els sistemes operatius no tenen preu
-                // Si tenen preu, afegeix-lo aquí
-                // Exemple: if (arr[0] !== null) total += parseFloat(arr[0]);
             });
 
             cartTotal.innerText = total.toFixed(2);
 
-            // Si no s'han seleccionat els components mínims per crear la mv no deixar continuar
-            if (cpus.size < 1 || rams.size < 1 || discs_durs.size < 1 || sis_op.size < 1) {
-                //if (cpus.size < 1) {
+            // Si no s'han seleccionat els components mínims per crear la bd no deixar continuar
+            if (cpu.size < 1 || ram.size < 1 || emmagatzemament.size < 1 || sgbd.size < 1) {
                 document.getElementById("finalitzar").disabled = true;
             } else {
                 document.getElementById("finalitzar").disabled = false;
@@ -523,33 +438,32 @@
         // Funció per eliminar un component de la cistella
         function removeFromCart(componentType, componentId) {
             switch (componentType) {
-                case 'cpu':
-                    cpus.delete(componentId);
-                    if (document.getElementById("boto_" + componentId)) {
-                        document.getElementById("boto_" + componentId).disabled = false;
-                    }
+                case 'cpu_virtual':
+                    cpu.delete(componentId);
+                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
+                        if (button.id.startsWith("boto_")) {
+                            button.disabled = false;
+                        }
+                    });
                     break;
-                case 'gpu':
-                    gpus.delete(componentId);
-                    if (document.getElementById("boto_" + componentId)) {
-                        document.getElementById("boto_" + componentId).disabled = false;
-                    }
+                case 'ram_virtual':
+                    ram.delete(componentId);
+                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
+                        if (button.id.startsWith("boto_")) {
+                            button.disabled = false;
+                        }
+                    });
                     break;
-                case 'disc_dur':
-                    discs_durs.delete(componentId);
-                    if (document.getElementById("boto_" + componentId)) {
-                        document.getElementById("boto_" + componentId).disabled = false;
-                    }
+                case 'emmagatzemament':
+                    emmagatzemament.delete(componentId);
+                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
+                        if (button.id.startsWith("boto_")) {
+                            button.disabled = false;
+                        }
+                    });
                     break;
-                case 'ram':
-                    rams.delete(componentId);
-                    if (document.getElementById("boto_" + componentId)) {
-                        document.getElementById("boto_" + componentId).disabled = false;
-                    }
-                    break;
-                case 'sistema_operatiu':
-                    sis_op.delete(componentId);
-                    // Reactivar tots els botons associats a un sistema operatiu
+                case 'sgbd':
+                    sgbd.delete(componentId);
                     document.querySelectorAll("button[id^='boto_']").forEach(button => {
                         if (button.id.startsWith("boto_")) {
                             button.disabled = false;
@@ -566,29 +480,13 @@
 
         // Funció de validació del formulari
         function validateForm() {
-            const vmName = document.getElementById("vmName").value.trim();
-            const vmIp = document.getElementById("vmIp").value.trim();
-            const vmMac = document.getElementById("vmMac").value.trim();
+            const bdName = document.getElementById("bdName").value.trim();
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.innerText = ""; // Clear previous errors
 
             // Validació del nom de la MV (ha de tenir almenys un caràcter)
-            if (vmName === "") {
-                errorMsg.innerText = "El nom de la MV no pot estar buit.";
-                return false;
-            }
-
-            // Validació de l'adreça IP
-            const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/;
-            if (!ipRegex.test(vmIp)) {
-                errorMsg.innerText = "L'adreça IP no és vàlida. Ha de ser en format IPv4 (ex: 192.168.1.1).";
-                return false;
-            }
-
-            // Validació de l'adreça MAC
-            const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-            if (!macRegex.test(vmMac)) {
-                errorMsg.innerText = "L'adreça MAC no és vàlida. Ha de ser en format (ex: 00:1A:2B:3C:4D:5E).";
+            if (bdName === "") {
+                errorMsg.innerText = "El nom de la BD no pot estar buit.";
                 return false;
             }
 
@@ -596,7 +494,7 @@
         }
 
         // Funció per mostrar el formulari de la MV
-        function mostrarFormMV() {
+        function mostrarFormBD() {
             const cartModalElement = document.getElementById('cartModal');
             const cartModal = bootstrap.Modal.getInstance(cartModalElement);
             if (cartModal) {
@@ -616,31 +514,25 @@
             }
 
             // Recollir les dades del formulari
-            const vmName = document.getElementById("vmName").value.trim();
-            const vmIp = document.getElementById("vmIp").value.trim();
-            const vmMac = document.getElementById("vmMac").value.trim();
+            const bdName = document.getElementById("bdName").value.trim();
 
             // Recollir les claus dels Maps
-            const selectedCpus = Array.from(cpus.keys());
-            const selectedGpus = Array.from(gpus.keys());
-            const selectedDiscsDurs = Array.from(discs_durs.keys());
-            const selectedRams = Array.from(rams.keys());
-            const selectedSisOp = Array.from(sis_op.keys());
+            const selectedCpu = Array.from(cpu.keys());
+            const selectedEmm = Array.from(emmagatzemament.keys());
+            const selectedSGBD = Array.from(sgbd.keys());
+            const selectedRam = Array.from(ram.keys());
 
             // Crear un objecte amb totes les dades
             const data = {
-                vmName: vmName,
-                vmIp: vmIp,
-                vmMac: vmMac,
-                cpus: selectedCpus,
-                gpus: selectedGpus,
-                discs_durs: selectedDiscsDurs,
-                rams: selectedRams,
-                sis_op: selectedSisOp
+                bdName: bdName,
+                cpu: selectedCpu,
+                emmagatzemament: selectedEmm,
+                ram: selectedRam,
+                sgbd: selectedSGBD
             };
 
-            // Enviar les dades a crear_mv.php mitjançant fetch
-            fetch('crear_mv.php', {
+            // Enviar les dades a crear_bd.php mitjançant fetch
+            fetch('crear_bd.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -657,12 +549,12 @@
                         alert(result.message);
                         window.location.href = "client.html"; // Redirigeix a client.html
                     } else {
-                        alert("No s'ha pogut crear la màquina virtual: " + result.message);
+                        alert("No s'ha pogut crear la base de dades: " + result.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error en fetch:', error);
-                    alert("Hi ha hagut un error en crear la màquina virtual.");
+                    alert("Hi ha hagut un error en crear la base de dades.");
                 });
 
         });
