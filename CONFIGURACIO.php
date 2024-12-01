@@ -55,13 +55,13 @@ class CONFIGURACIO
                         <td><?= htmlspecialchars($row['idConfig']); ?></td>
                         <td><?= htmlspecialchars($row['port']); ?></td>
                         <td>
-                            <!-- Botón Eliminar -->
+                            <!-- Botó Eliminar -->
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="idConfig" value="<?= $row['idConfig']; ?>">
                                 <button type="submit" name="delete_configuracio" class="btn btn-danger">Eliminar</button>
                             </form>
 
-                            <!-- Botón Actualizar -->
+                            <!-- Botó Actualizar -->
                             <button type="button" class="btn btn-primary"
                                 onclick="mostrarFormularioActualizar(<?= $row['idConfig']; ?>, '<?= htmlspecialchars($row['port']); ?>')">Actualizar</button>
                         </td>
@@ -70,7 +70,7 @@ class CONFIGURACIO
             </tbody>
         </table>
 
-        <!-- Formulario para Actualizar -->
+        <!-- Formulari par Actualitzar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idConfig" id="idConfig-actualizar">
@@ -78,8 +78,8 @@ class CONFIGURACIO
                     <label for="port-actualizar" class="form-label">Port:</label>
                     <input type="number" name="port" id="port-actualizar" class="form-control" required>
                 </div>
-                <button type="submit" name="update_configuracio" class="btn btn-success">Guardar Cambios</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
+                <button type="submit" name="update_configuracio" class="btn btn-success">Guardar canvis</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
             </form>
         </div>
 

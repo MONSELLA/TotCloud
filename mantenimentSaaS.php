@@ -1,5 +1,5 @@
 <?php
-// Incluir las clases necesarias
+// Incloure les classes necessàries
 include "connection.php";
 include "CONFIGURACIO.php";
 include "CPUVIRTUAL.php";
@@ -7,16 +7,16 @@ include "EMMAGATZEMAMENT.php";
 include "RAMVIRTUAL.php";
 include "SGBD.php";
 
-// Crear instancias de las clases
+// Crear instàncies de les classes
 $configManager = new CONFIGURACIO($conn);
 $cpuManager = new CPUVIRTUAL($conn);
 $storageManager = new EMMAGATZEMAMENT($conn);
 $ramManager = new RAMVIRTUAL($conn);
 $sgbdManager = new SGBD($conn);
 
-// Manejar solicitudes POST
+// Gestionar sol·licituds POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_section = $_GET['section'] ?? 'configuracio'; // Obtener la sección actual
+    $current_section = $_GET['section'] ?? 'configuracio'; // Obtenir la secció actual
 
     // CONFIGURACIO
     if (isset($_POST['add_configuracio'])) {
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sgbdManager->updateSGBD($idSGBD, $nom, $versio, $idConfig);
     }
 
-    // Redirigir después de procesar
+    // Redirigir després de processar
     header("Location: " . $_SERVER['PHP_SELF'] . "?section=" . $current_section);
     exit;
 }

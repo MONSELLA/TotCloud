@@ -121,8 +121,8 @@ class SGBD
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <button type="submit" name="update_sgbd" class="btn btn-success">Guardar Cambios</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
+                <button type="submit" name="update_sgbd" class="btn btn-success">Guardar canvis</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
             </form>
         </div>
 

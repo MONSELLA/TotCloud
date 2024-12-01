@@ -87,8 +87,8 @@ class CPUVIRTUAL
                     <label for="preu-actualizar" class="form-label">Preu:</label>
                     <input type="number" step="0.01" name="preu" id="preu-actualizar" class="form-control" required>
                 </div>
-                <button type="submit" name="update_cpuvirtual" class="btn btn-success">Guardar Cambios</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
+                <button type="submit" name="update_cpuvirtual" class="btn btn-success">Guardar canvis</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
             </form>
         </div>
 

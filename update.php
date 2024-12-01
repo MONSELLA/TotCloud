@@ -9,10 +9,10 @@ $sql = "UPDATE poblacio SET despob = ?, urlpob = ? WHERE codpob = ?";
 
 $stmt = $conn->prepare($sql);
 
-// Asociar los parámetros a la sentencia SQL
-$stmt->bind_param("sss", $despob, $urlpob, $codpob);  // "sss" indica que los tres parámetros son strings
+// Associar els paràmetres a la sentencia SQL
+$stmt->bind_param("sss", $despob, $urlpob, $codpob);  // "sss" indica que els tres paràmetres són strings
 
-// Ejecutar la sentencia
+// Executar la sentencia
 if ($stmt->execute()) {
     header("Location: poblacio.php");
     echo "Nuevo registro insertado correctamente.";
@@ -20,8 +20,6 @@ if ($stmt->execute()) {
     echo "Error al insertar los datos: " . $stmt->error;
 }
 
-/////////////////codi ROBI/////
-<?php
 class Update
 {
     private $conn;
