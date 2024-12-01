@@ -37,9 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $preu = $_POST['preu'] ?? null;
         $nomFase = $_POST['nomFase'] ?? null;
         $nomModel = $_POST['nomModel'] ?? null;
-        $idMaquina = $_POST['idMaquina'] ?? null;
-        if ($velocitatRellotge && $nuclis && $preu && $nomFase && $nomModel && $idMaquina) {
-            $cpuManager->addCPU($velocitatRellotge, $nuclis, $preu, $nomFase, $nomModel, $idMaquina);
+        if ($velocitatRellotge && $nuclis && $preu && $nomFase && $nomModel) {
+            $cpuManager->addCPU($velocitatRellotge, $nuclis, $preu, $nomFase, $nomModel);
         }
     } elseif (isset($_POST['delete_cpu'])) {
         $idCpu = $_POST['idCpu'] ?? null;
@@ -48,6 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_cpu'])) {
         // Implementar actualització de CPU
+        $idCpu = $_POST['idCpu'] ?? null;
+        $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
+        $nuclis = $_POST['nuclis'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        $nomFase = $_POST['nomFase'] ?? null;
+        $nomModel = $_POST['nomModel'] ?? null;
+        if ($idCpu && $velocitatRellotge && $nuclis && $preu && $nomFase && $nomModel) {
+            $cpuManager->updateCPU($idCpu, $velocitatRellotge, $nuclis, $preu, $nomFase, $nomModel);
+        }
     }
 
     // RAM
@@ -56,9 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $preu = $_POST['preu'] ?? null;
         $generacio = $_POST['generacio'] ?? null;
         $nomFase = $_POST['nomFase'] ?? null;
-        $idMaquina = $_POST['idMaquina'] ?? null;
-        if ($capacitat && $preu && $generacio && $nomFase && $idMaquina) {
-            $ramManager->addRAM($capacitat, $preu, $generacio, $nomFase, $idMaquina);
+        if ($capacitat && $preu && $generacio && $nomFase) {
+            $ramManager->addRAM($capacitat, $preu, $generacio, $nomFase);
         }
     } elseif (isset($_POST['delete_ram'])) {
         $idRAM = $_POST['idRAM'] ?? null;
@@ -67,6 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_ram'])) {
         // Implementar actualització de RAM
+        $idRAM = $_POST['idRAM'] ?? null;
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        $generacio = $_POST['generacio'] ?? null;
+        $nomFase = $_POST['nomFase'] ?? null;
+        if ($idRAM && $capacitat && $preu && $generacio && $nomFase) {
+            $ramManager->updateRAM($idRAM, $capacitat, $preu, $generacio, $nomFase);
+        }
     }
 
     // GPU
@@ -76,9 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $idVRAM = $_POST['idVRAM'] ?? null;
         $nomFase = $_POST['nomFase'] ?? null;
         $nomModel = $_POST['nomModel'] ?? null;
-        $idMaquina = $_POST['idMaquina'] ?? null;
-        if ($nuclis && $preu && $idVRAM && $nomFase && $nomModel && $idMaquina) {
-            $gpuManager->addGPU($nuclis, $preu, $idVRAM, $nomFase, $nomModel, $idMaquina);
+        if ($nuclis && $preu && $idVRAM && $nomFase && $nomModel) {
+            $gpuManager->addGPU($nuclis, $preu, $idVRAM, $nomFase, $nomModel);
         }
     } elseif (isset($_POST['delete_gpu'])) {
         $idGPU = $_POST['idGPU'] ?? null;
@@ -87,6 +101,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_gpu'])) {
         // Implementar actualització de GPU
+        $idGPU = $_POST['idGPU'] ?? null;
+        $nuclis = $_POST['nuclis'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        $idVRAM = $_POST['idVRAM'] ?? null;
+        $nomFase = $_POST['nomFase'] ?? null;
+        $nomModel = $_POST['nomModel'] ?? null;
+        if ($idGPU && $nuclis && $preu && $idVRAM && $nomFase && $nomModel) {
+            $gpuManager->updateGPU($idGPU, $nuclis, $preu, $idVRAM, $nomFase, $nomModel);
+        }
     }
 
     // DISC DUR
@@ -94,10 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
         $nomFase = $_POST['nomFase'] ?? null;
-        $idMaquina = $_POST['idMaquina'] ?? null;
         $nomTipus = $_POST['nomTipus'] ?? null;
-        if ($capacitat && $preu && $nomFase && $idMaquina && $nomTipus) {
-            $discdurManager->addDiscdur($capacitat, $preu, $nomFase, $idMaquina, $nomTipus);
+        if ($capacitat && $preu && $nomFase && $nomTipus) {
+            $discdurManager->addDiscdur($capacitat, $preu, $nomFase, $nomTipus);
         }
     } elseif (isset($_POST['delete_discdur'])) {
         $idDISC = $_POST['idDISC'] ?? null;
@@ -106,6 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_discdur'])) {
         // Implementar actualització de Disc Dur
+        $idDISC = $_POST['idDISC'] ?? null;
+        $capacitat = $_POST['capacitat'] ?? null;
+        $preu = $_POST['preu'] ?? null;
+        $nomFase = $_POST['nomFase'] ?? null;
+        $nomTipus = $_POST['nomTipus'] ?? null;
+        if ($idDISC && $capacitat && $preu && $nomFase && $nomTipus) {
+            $discdurManager->updateDiscdur($idDISC, $capacitat, $preu, $nomFase, $nomTipus);
+        }
     }
 
     // TIPUS
@@ -120,7 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tipusManager->deleteTipus($nom);
         }
     } elseif (isset($_POST['update_tipus'])) {
-        // Implementar actualització de Disc Dur
+        // Implementar actualització de Tipus
+        $oldNom = $_POST['oldNomTipus'] ?? null;
+        $newNom = $_POST['newNomTipus'] ?? null;
+        if ($oldNom && $newNom) {
+            $tipusManager->updateTipus($oldNom, $newNom);
+        }
     }
 
     // SO
@@ -137,6 +172,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_so'])) {
         // Implementar actualització de SO
+        $idSO = $_POST['idSO'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        $versio = $_POST['versio'] ?? null;
+        if ($idSO && $nom && $versio) {
+            $soManager->updateSO($idSO, $nom, $versio);
+        }
     }
 
     // MODEL
@@ -153,6 +194,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_model'])) {
         // Implementar actualització de MODEL
+        $idModel = $_POST['idModel'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        $nomMarca = $_POST['nomMarca'] ?? null;
+        if ($idModel && $nom && $nomMarca) {
+            $modelManager->updateModel($idModel, $nom, $nomMarca);
+        }
     }
 
     // MARCA
@@ -167,7 +214,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $marcaManager->deleteMarca($nom);
         }
     } elseif (isset($_POST['update_marca'])) {
-        // Implementar actualització de MARCA
+        $newNom = $_POST['new_nom'] ?? null;
+        $oldNom = $_POST['old_nom'] ?? null;
+        if ($oldNom && $newNom) {
+            $marcaManager->updateMarca($oldNom, $newNom);
+        }
     }
 
     // VRAM
@@ -184,6 +235,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_vram'])) {
         // Implementar actualització de VRAM
+        $idVRAM = $_POST['idVRAM'] ?? null;
+        $capacitat = $_POST['capacitat'] ?? null;
+        $generacio = $_POST['generacio'] ?? null;
+        if ($idVRAM && $capacitat && $generacio) {
+            $vramManager->updateVRAM($idVRAM, $capacitat, $generacio);
+        }
     }
 
     // GENERACIO
@@ -199,6 +256,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_generacio'])) {
         // Implementar actualització de GENERACIO
+        $idGeneracio = $_POST['idGeneracio'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        if ($idGeneracio && $nom) {
+            $generacioManager->updateGeneracio($idGeneracio, $nom);
+        }
     }
 
     // FASE
@@ -214,10 +276,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_fase'])) {
         // Implementar actualització de FASE
+        $idFase = $_POST['idFase'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        if ($idFase && $nom) {
+            $faseManager->updateFase($idFase, $nom);
+        }
     }
-
-    // Altres gestions per a TIPUS, SO, MODEL, MARCA, VRAM, GENERACIO
-    // Aquí pots afegir el codi per gestionar aquestes entitats
 
     // Redirigir després de processar
     header("Location: " . $_SERVER['PHP_SELF'] . "?section=" . $current_section);
@@ -280,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'tipus' ? 'active' : '' ?>"
                 onclick="location.href='?section=tipus'">Tipus</button>
             <button class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'so' ? 'active' : '' ?>"
-                onclick="location.href='?section=so'">Sistema Operatiu</button>
+                onclick="location.href='?section=so'">S.O</button>
             <button class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'model' ? 'active' : '' ?>"
                 onclick="location.href='?section=model'">Model</button>
             <button class="menu-button <?= isset($_GET['section']) && $_GET['section'] === 'marca' ? 'active' : '' ?>"

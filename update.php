@@ -15,9 +15,9 @@ $stmt->bind_param("sss", $despob, $urlpob, $codpob);  // "sss" indica que els tr
 // Executar la sentencia
 if ($stmt->execute()) {
     header("Location: poblacio.php");
-    echo "Nuevo registro insertado correctamente.";
+    echo "Nou registre insertat correctament.";
 } else {
-    echo "Error al insertar los datos: " . $stmt->error;
+    echo "Error a l'insertar les dades: " . $stmt->error;
 }
 
 class Update
@@ -64,9 +64,9 @@ class Update
         if (!empty($updates)) {
             $actualizarSQL = "UPDATE poblacio SET " . implode(", ", $updates) . " WHERE codpob = '$codiVell'";
             if ($this->conn->query($actualizarSQL) === TRUE) {
-                $message = "Registro actualizado correctamente.";
+                $message = "Registre actualitzat correctament.";
             } else {
-                $error = "Error al actualizar: " . $this->conn->error;
+                $error = "Error a l'actualizar: " . $this->conn->error;
             }
         }
 
