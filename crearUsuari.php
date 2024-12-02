@@ -23,18 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $table = 'client';
     }
 
-    // Verificar si l'usuario ja existeix a la taula corresponent
-    $checkQuery = "SELECT * FROM $table WHERE nick = ?";
-    $stmt = $conn->prepare($checkQuery);
-    $stmt->bind_param("s", $nick);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        echo "Error: L'usuari ja existeix en la taula $table. Elegeix un altre nick.";
-        exit;
-    }
-
     // Si l'usuario no existeix, inserir el nou usuari
     $salt = '$2y$10$' . substr(str_replace('+', '.', base64_encode(random_bytes(16))), 0, 22);
     $hashedPass = crypt($contrasenya, $salt);
