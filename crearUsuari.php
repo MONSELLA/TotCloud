@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $table = 'client';
     }
 
-    // Si l'usuario no existeix, inserir el nou usuari
+    // Inserir el nou usuari
     $salt = '$2y$10$' . substr(str_replace('+', '.', base64_encode(random_bytes(16))), 0, 22);
     $hashedPass = crypt($contrasenya, $salt);
     $insertQuery = "INSERT INTO $table (nom, llinatge1, llinatge2, nick, contrasenya, email) 
