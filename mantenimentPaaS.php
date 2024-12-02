@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_cpu'])) {
         // Implementar actualització de CPU
-        $idCpu = $_POST['idCpu'] ?? null;
+        $idCpu = $_POST['old_idCpu'] ?? null;
         $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
         $nuclis = $_POST['nuclis'] ?? null;
         $preu = $_POST['preu'] ?? null;
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_ram'])) {
         // Implementar actualització de RAM
-        $idRAM = $_POST['idRAM'] ?? null;
+        $idRAM = $_POST['old_idRAM'] ?? null;
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
         $generacio = $_POST['generacio'] ?? null;
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_gpu'])) {
         // Implementar actualització de GPU
-        $idGPU = $_POST['idGPU'] ?? null;
+        $idGPU = $_POST['old_idGPU'] ?? null;
         $nuclis = $_POST['nuclis'] ?? null;
         $preu = $_POST['preu'] ?? null;
         $idVRAM = $_POST['idVRAM'] ?? null;
@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_discdur'])) {
         // Implementar actualització de Disc Dur
-        $idDISC = $_POST['idDISC'] ?? null;
+        $idDISC = $_POST['old_idDISC'] ?? null;
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
         $nomFase = $_POST['nomFase'] ?? null;
@@ -151,8 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_tipus'])) {
         // Implementar actualització de Tipus
-        $oldNom = $_POST['oldNomTipus'] ?? null;
-        $newNom = $_POST['newNomTipus'] ?? null;
+        $oldNom = $_POST['old_nom'] ?? null;
+        $newNom = $_POST['new_nom'] ?? null;
         if ($oldNom && $newNom) {
             $tipusManager->updateTipus($oldNom, $newNom);
         }
@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_so'])) {
         // Implementar actualització de SO
-        $idSO = $_POST['idSO'] ?? null;
+        $idSO = $_POST['old_idSO'] ?? null;
         $nom = $_POST['nom'] ?? null;
         $versio = $_POST['versio'] ?? null;
         if ($idSO && $nom && $versio) {
@@ -194,8 +194,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_model'])) {
         // Implementar actualització de MODEL
-        $idModel = $_POST['idModel'] ?? null;
-        $nom = $_POST['nom'] ?? null;
+        $idModel = $_POST['old_nom'] ?? null;
+        $nom = $_POST['new_nom'] ?? null;
         $nomMarca = $_POST['nomMarca'] ?? null;
         if ($idModel && $nom && $nomMarca) {
             $modelManager->updateModel($idModel, $nom, $nomMarca);
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_vram'])) {
         // Implementar actualització de VRAM
-        $idVRAM = $_POST['idVRAM'] ?? null;
+        $idVRAM = $_POST['old_idVRAM'] ?? null;
         $capacitat = $_POST['capacitat'] ?? null;
         $generacio = $_POST['generacio'] ?? null;
         if ($idVRAM && $capacitat && $generacio) {
@@ -256,8 +256,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_generacio'])) {
         // Implementar actualització de GENERACIO
-        $idGeneracio = $_POST['idGeneracio'] ?? null;
-        $nom = $_POST['nom'] ?? null;
+        $idGeneracio = $_POST['old_nom'] ?? null;
+        $nom = $_POST['new_nom'] ?? null;
         if ($idGeneracio && $nom) {
             $generacioManager->updateGeneracio($idGeneracio, $nom);
         }
@@ -276,8 +276,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_fase'])) {
         // Implementar actualització de FASE
-        $idFase = $_POST['idFase'] ?? null;
-        $nom = $_POST['nom'] ?? null;
+        $idFase = $_POST['old_nom'] ?? null;
+        $nom = $_POST['new_nom'] ?? null;
         if ($idFase && $nom) {
             $faseManager->updateFase($idFase, $nom);
         }
