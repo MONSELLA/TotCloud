@@ -8,6 +8,9 @@ session_start();
 header('Content-Type: application/json');
 
 try {
+    // Iniciam una transacció
+    $conn->begin_transaction();
+
     // Rebre les dades JSON enviades des de JavaScript
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
@@ -93,9 +96,8 @@ try {
         update($conn, $sql, $idMaquina, $idDD);
     }
 
-    // Tancar la connexió
-    $conn->close();
-
+    // Acceptar la transacció
+    $conn->commit();
     // Retornar un JSON amb èxit
     echo json_encode([
         'success' => true,
@@ -103,6 +105,8 @@ try {
         //'message' => 'La màquina virtual s\'ha creat correctament. Nom: ' . $vmName . ', IP: ' . $vmIp . ', MAC: ' . $vmMac . ', CPUs: ' . implode(', ', $cpus)
     ]);
 } catch (Exception $e) {
+    // Rebutjar la transacció
+    $conn->rollback();
     // Retornar error
     echo json_encode([
         'success' => false,
@@ -110,6 +114,9 @@ try {
     ]);
     exit;
 }
+
+// Tancar la connexió
+$conn->close();
 
 function update($conn, $sql, $idMaquina, $id)
 {

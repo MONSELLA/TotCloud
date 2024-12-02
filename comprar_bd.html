@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TotCloud - Comprar Màquina Virtual</title>
+    <title>TotCloud</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -27,6 +27,15 @@
         #clearFilterButton {
             display: none;
         }
+
+        .privileges-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 
@@ -34,7 +43,7 @@
     <!-- Barra de navegació -->
     <nav class="navbar navbar-dark" style="background-color: #343a40;">
         <div class="container-fluid">
-            <span href="client.html" class="navbar-brand mb-0 h1">TotCloud</span>
+            <a href="client.html" class="navbar-brand mb-0 h1">TotCloud</a>
             <button class="btn position-relative" onclick="mostrarCistella()">
                 <img src="images/cesta.png" alt="Cistella" class="img-fluid" style="max-width: 1.8em; height: auto;">
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -140,14 +149,37 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Formulari per a la màquina virtual -->
+                    <!-- Formulari per a la base de dades -->
                     <p>Es crearà amb els components que has seleccionat</p>
                     <form id="vmForm">
                         <div class="mb-3">
-                            <label for="bdName" class="form-label">Nom</label>
+                            <label for="bdName" class="form-label">Nom de la Base de Dades</label>
                             <input type="text" class="form-control" id="bdName"
                                 placeholder="Introdueixi el nom de la base de dades...">
                         </div>
+                        <div id="usersContainer">
+                            <!-- User entries will be added here -->
+                            <div class="user-entry mb-3">
+                                <h5>Usuari 1</h5>
+                                <div class="mb-3">
+                                    <label for="dbUsername1" class="form-label">Nom d'Usuari</label>
+                                    <input type="text" class="form-control" id="dbUsername1"
+                                        placeholder="Introdueixi el nom d'usuari...">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dbPassword1" class="form-label">Contrasenya</label>
+                                    <input type="password" class="form-control" id="dbPassword1"
+                                        placeholder="Introdueixi la contrasenya...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Privilegis</label>
+                                    <div class="privileges-container" id="privilegesContainer1">
+                                        <p class="text-center text-secondary">Carregant privilegis...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="addUserButton">Afegir Usuari</button>
                     </form>
                     <!-- Missatge d'error -->
                     <div id="errorMsg" class="text-danger"></div>
@@ -172,6 +204,8 @@
         let emmagatzemament = new Map();
         let sgbd = new Map();
         let ram = new Map();
+        // Variable per guardar els privilegis
+        let availablePrivileges = [];
 
         // Funció per agafar els components de la base de dades
         function fetchData(queryType, asc, brand, callback) {
@@ -210,6 +244,13 @@
         function applyFilter(filter) {
             currentFilter = filter; // Emmagatzema el filtre actual
             document.getElementById('clearFilterButton').style.display = 'inline-block'; // Mostra el botó per eliminar el filtre
+
+            if (filter == 'sgbd') {
+                document.getElementById('ordenPrecio').style.display = 'none';
+            } else {
+                document.getElementById('ordenPrecio').style.display = 'block';
+            }
+
             ferConsulta();
         }
 
@@ -249,7 +290,7 @@
             switch (currentFilter) {
                 case 'cpu_virtual':
                     data.forEach(component => {
-                        disabled = false;
+                        let disabled = false;
                         if (cpu.size > 0) {
                             disabled = true;
                         }
@@ -269,7 +310,7 @@
                     break;
                 case 'ram_virtual':
                     data.forEach(component => {
-                        disabled = false;
+                        let disabled = false;
                         if (ram.size > 0) {
                             disabled = true;
                         }
@@ -288,9 +329,9 @@
                     });
                     break;
                 case 'emmagatzemament':
-                    disabled = false;
+                    let disabledEmm = false;
                     if (emmagatzemament.size > 0) {
-                        disabled = true;
+                        disabledEmm = true;
                     }
                     data.forEach(component => {
                         html += `
@@ -300,7 +341,7 @@
                                     <h5>EMMAGATZEMAMENT</h5>
                                     <p class="card-text">Capacitat: ${component.capacitat}GB</p>
                                     <p class="card-text">Preu: ${component.preu}€</p>
-                                    <button id="boto_${component.idEmmagatzemament}" class="btn btn-success" onclick="addToCart('emmagatzemament', ${component.idEmmagatzemament}, ${component.preu}, ${component.capacitat})">Afegir a la Cistella</button>
+                                    <button id="boto_${component.idEmmagatzemament}" class="btn btn-success" onclick="addToCart('emmagatzemament', ${component.idEmmagatzemament}, ${component.preu}, ${component.capacitat})" ${disabledEmm ? "disabled" : ""}>Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
@@ -308,9 +349,9 @@
                     });
                     break;
                 case 'sgbd':
-                    disabled = false;
+                    let disabledSgbd = false;
                     if (sgbd.size > 0) {
-                        disabled = true;
+                        disabledSgbd = true;
                     }
                     data.forEach(component => {
                         html += `
@@ -319,7 +360,7 @@
                                 <div class="card-body">
                                     <h5 class="card-text">${component.nom}</h5>
                                     <p class="card-text">Versió: ${component.versio}</p>
-                                    <button id="boto_${component.idSGBD}" class="btn btn-success" onclick="addToCart('sgbd', ${component.idSGBD}, null, '${component.nom} ${component.versio}')">Afegir a la Cistella</button>
+                                    <button id="boto_${component.idSGBD}" class="btn btn-success" onclick="addToCart('sgbd', ${component.idSGBD}, null, '${component.nom} ${component.versio}')" ${disabledSgbd ? "disabled" : ""}>Afegir a la Cistella</button>
                                 </div>
                             </div>
                         </div>
@@ -351,8 +392,8 @@
                     console.error("Tipus de component desconegut:", componentType);
                     return;
             }
-            //Desactivar tots els botons associats a un component si hi ha un a la cistella
-            document.querySelectorAll("button[id^='boto_']").forEach(button => {
+            // Desactivar tots els botons associats a un component si ja hi ha un a la cistella
+            document.querySelectorAll(`button[id^='boto_']`).forEach(button => {
                 if (button.id.startsWith("boto_")) {
                     button.disabled = true;
                 }
@@ -379,7 +420,6 @@
             if (currentModal) {
                 currentModal.hide();
             }
-
 
             // Pujar les llistes
             const cartCpu = document.getElementById('cartCpu');
@@ -440,60 +480,187 @@
             switch (componentType) {
                 case 'cpu_virtual':
                     cpu.delete(componentId);
-                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
-                        if (button.id.startsWith("boto_")) {
-                            button.disabled = false;
-                        }
-                    });
                     break;
                 case 'ram_virtual':
                     ram.delete(componentId);
-                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
-                        if (button.id.startsWith("boto_")) {
-                            button.disabled = false;
-                        }
-                    });
                     break;
                 case 'emmagatzemament':
                     emmagatzemament.delete(componentId);
-                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
-                        if (button.id.startsWith("boto_")) {
-                            button.disabled = false;
-                        }
-                    });
                     break;
                 case 'sgbd':
                     sgbd.delete(componentId);
-                    document.querySelectorAll("button[id^='boto_']").forEach(button => {
-                        if (button.id.startsWith("boto_")) {
-                            button.disabled = false;
-                        }
-                    });
                     break;
                 default:
                     console.error("Tipus de component desconegut:", componentType);
                     return;
             }
+            // Reactivar els botons associats als components eliminats
+            document.querySelectorAll(`button[id^='boto_']`).forEach(button => {
+                if (button.id.startsWith("boto_")) {
+                    button.disabled = false;
+                }
+            });
+
             updateCartCount();
             mostrarCistella(); // Actualitzar la modal per reflectir els canvis
+        }
+
+        let userCount = 1; // To keep track of the number of users
+
+        // Fetch privileges when the document is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPrivilegis();
+        });
+
+        function fetchPrivilegis() {
+            fetch('fetchPrivilegis.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Privileges fetched:', data);
+                    availablePrivileges = data;
+                    // Populate the privileges for the first user
+                    populatePrivileges(1);
+                })
+                .catch(error => {
+                    console.error('Error fetching privileges:', error);
+                    const privilegesContainer = document.getElementById('privilegesContainer1');
+                    privilegesContainer.innerHTML = `<p class="text-danger">Error en carregar els privilegis.</p>`;
+                });
+        }
+
+        // Funció per afegir un nou usuari
+        document.getElementById('addUserButton').addEventListener('click', function () {
+            userCount++;
+            const usersContainer = document.getElementById('usersContainer');
+
+            const userEntryDiv = document.createElement('div');
+            userEntryDiv.classList.add('user-entry', 'mb-3');
+            userEntryDiv.innerHTML = `
+                <h5>Usuari ${userCount} <button type="button" class="btn btn-danger btn-sm remove-user-button">Eliminar Usuari</button></h5>
+                <div class="mb-3">
+                    <label for="dbUsername${userCount}" class="form-label">Nom d'Usuari</label>
+                    <input type="text" class="form-control" id="dbUsername${userCount}"
+                        placeholder="Introdueixi el nom d'usuari...">
+                </div>
+                <div class="mb-3">
+                    <label for="dbPassword${userCount}" class="form-label">Contrasenya</label>
+                    <input type="password" class="form-control" id="dbPassword${userCount}"
+                        placeholder="Introdueixi la contrasenya...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Privilegis</label>
+                    <div class="privileges-container" id="privilegesContainer${userCount}">
+                        <!-- Privilege checkboxes will be added here -->
+                        <p class="text-center text-secondary">Carregant privilegis...</p>
+                    </div>
+                </div>
+            `;
+            usersContainer.appendChild(userEntryDiv);
+            populatePrivileges(userCount);
+        });
+
+        // Funció per eliminar un usuari
+        document.getElementById('usersContainer').addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-user-button')) {
+                const userEntryDiv = event.target.closest('.user-entry');
+                userEntryDiv.remove();
+                updateUserHeadings();
+            }
+        });
+
+        // Funció per actualitzar els títols dels usuaris després d'eliminar
+        function updateUserHeadings() {
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            userCount = 0;
+            userEntries.forEach((entry, index) => {
+                userCount++;
+                const h5 = entry.querySelector('h5');
+                h5.innerHTML = `Usuari ${userCount} <button type="button" class="btn btn-danger btn-sm remove-user-button">Eliminar Usuari</button>`;
+                const usernameInput = entry.querySelector('input[type="text"]');
+                const passwordInput = entry.querySelector('input[type="password"]');
+                usernameInput.id = `dbUsername${userCount}`;
+                passwordInput.id = `dbPassword${userCount}`;
+                // Update privileges container ID
+                const privilegesContainer = entry.querySelector('.privileges-container');
+                privilegesContainer.id = `privilegesContainer${userCount}`;
+            });
+        }
+
+        // Funció per popular els privilegis en cada usuari
+        function populatePrivileges(userId) {
+            const privilegesContainer = document.getElementById(`privilegesContainer${userId}`);
+            if (!privilegesContainer) return;
+
+            if (availablePrivileges.length === 0) {
+                privilegesContainer.innerHTML = `<p class="text-secondary">No hi ha privilegis disponibles.</p>`;
+                return;
+            }
+
+            let privilegesHTML = '';
+            availablePrivileges.forEach(privilegi => {
+                const privilegeId = `user${userId}_priv_${privilegi.nom}`;
+                privilegesHTML += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="${privilegi.nom}" id="${privilegeId}">
+                        <label class="form-check-label" for="${privilegeId}">
+                            ${privilegi.nom}
+                        </label>
+                    </div>
+                `;
+            });
+            privilegesContainer.innerHTML = privilegesHTML;
         }
 
         // Funció de validació del formulari
         function validateForm() {
             const bdName = document.getElementById("bdName").value.trim();
             const errorMsg = document.getElementById("errorMsg");
-            errorMsg.innerText = ""; // Clear previous errors
+            errorMsg.innerText = ""; // Netejar errors anteriors
 
-            // Validació del nom de la MV (ha de tenir almenys un caràcter)
+            // Validació del nom de la BD (ha de tenir almenys un caràcter)
             if (bdName === "") {
-                errorMsg.innerText = "El nom de la BD no pot estar buit.";
+                errorMsg.innerText = "El nom de la base de dades no pot estar buit.";
                 return false;
+            }
+
+            // Validació dels usuaris
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            if (userEntries.length === 0) {
+                errorMsg.innerText = "Has d'afegir almenys un usuari.";
+                return false;
+            }
+
+            for (let i = 0; i < userEntries.length; i++) {
+                const usernameInput = userEntries[i].querySelector('input[type="text"]');
+                const passwordInput = userEntries[i].querySelector('input[type="password"]');
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                if (username === "") {
+                    errorMsg.innerText = `El nom d'usuari de l'Usuari ${i + 1} no pot estar buit.`;
+                    return false;
+                }
+                if (password === "") {
+                    errorMsg.innerText = `La contrasenya de l'Usuari ${i + 1} no pot estar buida.`;
+                    return false;
+                }
+                if (password.length < 6) {
+                    errorMsg.innerText = `La contrasenya de l'Usuari ${i + 1} ha de tenir almenys 6 caràcters.`;
+                    return false;
+                }
+
+                // Validació dels privilegis
+                const privileges = userEntries[i].querySelectorAll('.privileges-container input[type="checkbox"]:checked');
+                if (privileges.length === 0) {
+                    errorMsg.innerText = `Has d'assignar almenys un privilegi a l'Usuari ${i + 1}.`;
+                    return false;
+                }
             }
 
             return true;
         }
 
-        // Funció per mostrar el formulari de la MV
+        // Funció per mostrar el formulari de la BD
         function mostrarFormBD() {
             const cartModalElement = document.getElementById('cartModal');
             const cartModal = bootstrap.Modal.getInstance(cartModalElement);
@@ -516,6 +683,26 @@
             // Recollir les dades del formulari
             const bdName = document.getElementById("bdName").value.trim();
 
+            // Recollir els usuaris
+            const users = [];
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            for (let i = 0; i < userEntries.length; i++) {
+                const usernameInput = userEntries[i].querySelector('input[type="text"]');
+                const passwordInput = userEntries[i].querySelector('input[type="password"]');
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                // Recollir els privilegis seleccionats
+                const privileges = Array.from(userEntries[i].querySelectorAll('.privileges-container input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.value);
+
+                users.push({
+                    username: username,
+                    password: password,
+                    privileges: privileges
+                });
+            }
+
             // Recollir les claus dels Maps
             const selectedCpu = Array.from(cpu.keys());
             const selectedEmm = Array.from(emmagatzemament.keys());
@@ -525,6 +712,7 @@
             // Crear un objecte amb totes les dades
             const data = {
                 bdName: bdName,
+                users: users,
                 cpu: selectedCpu,
                 emmagatzemament: selectedEmm,
                 ram: selectedRam,
@@ -558,7 +746,6 @@
                 });
 
         });
-
     </script>
 </body>
 

@@ -2,7 +2,7 @@
 include('connection.php');
 header('Content-Type: application/json');
 session_start();
-$_SESSION['id'] = 1;
+
 // Comprovar si l'usuari ha iniciat sessió
 if (!isset($_SESSION['id'])) {
     echo json_encode(["error" => "No has iniciat sessió."]);
@@ -33,7 +33,8 @@ if ($result->num_rows > 0) {
                 "ramv" => [],
                 "emm" => [],
                 "sgbd" => []
-            ]
+            ],
+            "usuaris" => []
         ];
 
         // Obtenir CPU
@@ -96,6 +97,38 @@ if ($result->num_rows > 0) {
             ];
         }
         $stmt_sgbd->close();
+
+        // Obtenir els usuaris
+        $sql_user = "SELECT nom,idUsuariBd
+                    FROM USUARI_BD
+                    WHERE idBD = ?";
+        $stmt_user = $conn->prepare($sql_user);
+        $stmt_user->bind_param("i", $bd['idBD']);
+        $stmt_user->execute();
+        $result_user = $stmt_user->get_result();
+
+        $sql_p = "SELECT nomPrivilegi
+            FROM te_PRIVILEGI_BD
+            WHERE idUsuariBd = ?";
+        $stmt_p = $conn->prepare($sql_p);
+        while ($user = $result_user->fetch_assoc()) {
+            //Per a cada usuari obtenim els seus privilegis
+            $privilegis = [];
+
+            $stmt_p->bind_param("i", $user['idUsuariBd']);
+            $stmt_p->execute();
+            $result_p = $stmt_p->get_result();
+            while ($privilegi = $result_p->fetch_assoc()) {
+                $privilegis[] = $privilegi["nomPrivilegi"];
+            }
+            //Guardar el nom d'usuari i els seus privilegis
+            $base['usuaris'][] = [
+                "nom" => $user['nom'],
+                "privilegis" => $privilegis
+            ];
+        }
+        $stmt_p->close();
+        $stmt_user->close();
 
         $bds[] = $base;
     }

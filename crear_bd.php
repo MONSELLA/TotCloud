@@ -3,11 +3,19 @@ include("connection.php");
 
 // Iniciar la sessió
 session_start();
-$_SESSION['id'] = 1;
+
+// Comprovar si l'usuari ha iniciat sessió
+if (!isset($_SESSION['id'])) {
+    echo json_encode(["error" => "No has iniciat sessió."]);
+    exit();
+}
 // Establir el tipus de contingut com JSON
 header('Content-Type: application/json');
 
 try {
+    // Iniciam una transacció
+    $conn->begin_transaction();
+
     // Rebre les dades JSON enviades des de JavaScript
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
@@ -33,7 +41,7 @@ try {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        throw new Exception('No s\'ha pogut preparar la consulta: ' . $conn->error);
+        throw new Exception('No s\'ha pogut crear la base de dades: ' . $conn->error);
     }
 
     // Vincular els valors a la consulta preparada
@@ -47,23 +55,65 @@ try {
 
     // Executar la consulta
     if (!$stmt->execute()) {
-        throw new Exception('No s\'ha pogut executar la consulta: ' . $stmt->error);
+        throw new Exception('No s\'ha pogut crear la base de dades: ' . $stmt->error);
     }
 
-    // Obtenir l'ID de la BD
+    // Obtenir l'ID de la BD creada
     $idBD = (int)$conn->insert_id;
 
     // Tancar la consulta
     $stmt->close();
-    // Tancar la connexió
-    $conn->close();
 
+    // Crear els usuaris de la base de dades
+    foreach ($data['users'] as $user) {
+        $sql = "INSERT INTO USUARI_BD (nom, contrasenya, idBD) 
+                VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('No s\'ha pogut crear la base de dades: ' . $conn->error);
+        }
+
+        $nom = $user['username'];
+        $contrasenya = password_hash($user['password'], PASSWORD_DEFAULT); //encriptar la contrasenya
+
+        $stmt->bind_param("ssi", $nom, $contrasenya, $idBD);
+        // Executar la consulta
+        if (!$stmt->execute()) {
+            throw new Exception('No s\'ha pogut crear la base de dades: ' . $stmt->error);
+        }
+        // Tancar la consulta
+        $stmt->close();
+
+        //Associar els privilegis a l'usuari creat
+        $idUser = (int)$conn->insert_id;
+        foreach ($user['privileges'] as $privilege) {
+            $sql = "INSERT INTO te_PRIVILEGI_BD (nomPrivilegi, idUsuariBd) 
+                VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception('No s\'ha pogut crear la base de dades: ' . $conn->error);
+            }
+
+            $stmt->bind_param("si", $privilege, $idUser);
+            // Executar la consulta
+            if (!$stmt->execute()) {
+                throw new Exception('No s\'ha pogut crear la base de dades: ' . $stmt->error);
+            }
+            // Tancar la consulta
+            $stmt->close();
+        }
+    }
+
+    // Acceptar la transacció
+    $conn->commit();
     // Retornar un JSON amb èxit
     echo json_encode([
         'success' => true,
         'message' => 'La base de dades s\'ha creat correctament.'
     ]);
 } catch (Exception $e) {
+    // Rebutjar la transacció
+    $conn->rollback();
     // Retornar error
     echo json_encode([
         'success' => false,
@@ -71,3 +121,6 @@ try {
     ]);
     exit;
 }
+
+// Tancar la connexió
+$conn->close();
