@@ -1,30 +1,18 @@
 <?php
+include('connection.php');
 header('Content-Type: application/json');
 session_start();
-
-// Connexió a la base de dades
-$servername = "localhost";
-$username = "username";
-$password = "password";
-$dbname = "TotCloud";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(["error" => "Connexió fallida: " . $conn->connect_error]);
-    exit();
-}
-
+$_SESSION['id'] = 1;
 // Comprovar si l'usuari ha iniciat sessió
 if (!isset($_SESSION['id'])) {
     echo json_encode(["error" => "No has iniciat sessió."]);
     exit();
 }
 
-$idClient = $_SESSION['id'];
+$idClient = (int)$_SESSION['id'];
 
 // Consulta per obtenir les màquines virtuals del client
-$sql = "SELECT idMaquina, nom, ip, mac, sistema_operatiu.nom AS sistema, versio
+$sql = "SELECT idMaquina, maquina_virtual.nom, ip, mac, sistema_operatiu.nom AS sistema, versio
         FROM maquina_virtual
         JOIN sistema_operatiu ON maquina_virtual.idSO = sistema_operatiu.idSO
         WHERE idClient = ?";
@@ -40,99 +28,90 @@ $maquines = [];
 if ($result->num_rows > 0) {
     while ($mv = $result->fetch_assoc()) {
         $maquina = [
-            "idMaquina" => $mv['idMaquina'],
             "nom" => $mv['nom'],
             "ip" => $mv['ip'],
             "mac" => $mv['mac'],
             "sistema" => $mv['sistema'],
             "versio" => $mv['versio'],
-            "components" => []
+            "components" => [
+                "cpu" => [],
+                "gpu" => [],
+                "ram" => [],
+                "discos" => []
+            ]
         ];
 
         // Obtenir CPU
-        $sql_cpu = "SELECT c.velocitatRellotge, c.nuclis, c.preu, f.nom AS fase, m.nom AS model
-                    FROM CPU c
-                    JOIN FASE f ON c.nomFase = f.nom
-                    JOIN MODEL m ON c.nomModel = m.nom
-                    WHERE c.idMaquina = ?";
+        $sql_cpu = "SELECT velocitatRellotge, nuclis, model.nom AS model, model.nomMarca AS marca
+                    FROM cpu
+                    JOIN model ON cpu.nomModel = model.nom
+                    WHERE idMaquina = ?";
         $stmt_cpu = $conn->prepare($sql_cpu);
         $stmt_cpu->bind_param("i", $mv['idMaquina']);
         $stmt_cpu->execute();
         $result_cpu = $stmt_cpu->get_result();
-        if ($cpu = $result_cpu->fetch_assoc()) {
-            $maquina['components']['cpu'] = [
+        while ($cpu = $result_cpu->fetch_assoc()) {
+            $maquina['components']['cpu'][] = [
                 "velocitatRellotge" => $cpu['velocitatRellotge'],
                 "nuclis" => $cpu['nuclis'],
-                "preu" => $cpu['preu'],
-                "fase" => $cpu['fase'],
-                "model" => $cpu['model']
+                "model" => $cpu['model'],
+                "marca" => $cpu['marca']
             ];
         }
+        $stmt_cpu->close();
 
         // Obtenir GPU
-        $sql_gpu = "SELECT g.nuclis, g.preu, v.capacitat AS vram, gen.nom AS generacio, f.nom AS fase, m.nom AS model
-                    FROM GPU g
-                    JOIN VRAM v ON g.idVRAM = v.idVRAM
-                    JOIN GENERACIO gen ON v.generacio = gen.nom
-                    JOIN FASE f ON g.nomFase = f.nom
-                    JOIN MODEL m ON g.nomModel = m.nom
-                    WHERE g.idMaquina = ?";
+        $sql_gpu = "SELECT nuclis, capacitat, generacio, model.nom AS model, model.nomMarca AS marca
+                    FROM gpu
+                    JOIN vram ON gpu.idVRAM = vram.idVRAM
+                    JOIN model ON gpu.nomModel = model.nom
+                    WHERE idMaquina = ?";
         $stmt_gpu = $conn->prepare($sql_gpu);
         $stmt_gpu->bind_param("i", $mv['idMaquina']);
         $stmt_gpu->execute();
         $result_gpu = $stmt_gpu->get_result();
-        if ($gpu = $result_gpu->fetch_assoc()) {
-            $maquina['components']['gpu'] = [
+        while ($gpu = $result_gpu->fetch_assoc()) {
+            $maquina['components']['gpu'][] = [
                 "nuclis" => $gpu['nuclis'],
-                "preu" => $gpu['preu'],
-                "vram" => $gpu['vram'],
+                "capacitat" => $gpu['capacitat'],
                 "generacio" => $gpu['generacio'],
-                "fase" => $gpu['fase'],
-                "model" => $gpu['model']
+                "model" => $gpu['model'],
+                "marca" => $gpu['marca']
             ];
         }
+        $stmt_gpu->close();
 
         // Obtenir RAM
-        $sql_ram = "SELECT r.capacitat, r.preu, gen.nom AS generacio, f.nom AS fase
-                    FROM RAM r
-                    JOIN GENERACIO gen ON r.generacio = gen.nom
-                    JOIN FASE f ON r.nomFase = f.nom
-                    WHERE r.idMaquina = ?";
+        $sql_ram = "SELECT capacitat, generacio
+                    FROM ram
+                    WHERE idMaquina = ?";
         $stmt_ram = $conn->prepare($sql_ram);
         $stmt_ram->bind_param("i", $mv['idMaquina']);
         $stmt_ram->execute();
         $result_ram = $stmt_ram->get_result();
-        if ($ram = $result_ram->fetch_assoc()) {
-            $maquina['components']['ram'] = [
+        while ($ram = $result_ram->fetch_assoc()) {
+            $maquina['components']['ram'][] = [
                 "capacitat" => $ram['capacitat'],
-                "preu" => $ram['preu'],
-                "generacio" => $ram['generacio'],
-                "fase" => $ram['fase']
+                "generacio" => $ram['generacio']
             ];
         }
+        $stmt_ram->close();
 
         // Obtenir Discos Durs
-        $sql_disc = "SELECT d.capacitat, d.preu, t.nom AS tipus, f.nom AS fase
-                     FROM DISC_DUR d
-                     JOIN TIPUS t ON d.nomTipus = t.nom
-                     JOIN FASE f ON d.nomFase = f.nom
-                     WHERE d.idMaquina = ?";
+        $sql_disc = "SELECT capacitat, nomTipus AS tipus
+                    FROM disc_dur
+                    WHERE idMaquina = ?";
         $stmt_disc = $conn->prepare($sql_disc);
         $stmt_disc->bind_param("i", $mv['idMaquina']);
         $stmt_disc->execute();
         $result_disc = $stmt_disc->get_result();
-        $discos = [];
         while ($disc = $result_disc->fetch_assoc()) {
-            $discos[] = [
+            $maquina['components']['discos'][] = [
                 "capacitat" => $disc['capacitat'],
-                "preu" => $disc['preu'],
-                "tipus" => $disc['tipus'],
-                "fase" => $disc['fase']
+                "tipus" => $disc['tipus']
             ];
         }
-        if (!empty($discos)) {
-            $maquina['components']['discos'] = $discos;
-        }
+        $stmt_disc->close();
 
         $maquines[] = $maquina;
     }
@@ -140,5 +119,4 @@ if ($result->num_rows > 0) {
 
 echo json_encode($maquines);
 
-$stmt->close();
 $conn->close();

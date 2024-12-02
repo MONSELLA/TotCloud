@@ -27,18 +27,23 @@
 </head>
 
 <body class="bg-light">
-    <!-- Barra de navegación -->
+    <!-- Navbar -->
     <nav class="navbar navbar-dark" style="background-color: #343a40;">
         <div class="container-fluid">
             <a href="client.html" class="navbar-brand my-1 h1">TotCloud</a>
         </div>
     </nav>
 
-    <!-- Contenido principal -->
+    <!-- Contingut principal -->
     <main class="container my-5">
         <h2 class="mb-4">Les teves Màquines Virtuals</h2>
-        <div id="products-container">
+        <div id="mv-product">
             <div class="alert alert-info">Carregant les teves màquines virtuals...</div>
+        </div>
+
+        <h2 class="mb-4">Les teves Bases de Dades</h2>
+        <div id="bd-product">
+            <div class="alert alert-info">Carregant les teves bases de dades...</div>
         </div>
     </main>
 
@@ -52,72 +57,180 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- JavaScript para fetch de dades -->
+    <!-- JavaScript per a fetch de dades -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('fetch_productes.php')
+            // Fetch per a les màquines virtuals
+            fetch('fetchMaquina.php')
                 .then(response => response.json())
                 .then(data => {
-                    const container = document.getElementById('products-container');
+                    console.log('Resposta del servidor (Maquines Virtuals):', data);
+                    const container = document.getElementById('mv-product');
                     container.innerHTML = '';
 
-                    if (data.length === 0) {
-                        container.innerHTML = '<div class="alert alert-info">No tens màquines virtuals assignades.</div>';
-                        return;
+                    if (Array.isArray(data)) {
+                        if (data.length === 0) {
+                            container.innerHTML = '<div class="alert alert-info">No tens màquines virtuals.</div>';
+                            return;
+                        }
+
+                        data.forEach(mv => {
+                            let card = document.createElement('div');
+                            card.className = 'card mb-4';
+
+                            let cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+                            cardHeader.innerHTML = `<h5 class="card-title mb-0">${mv.nom}</h5>`;
+                            card.appendChild(cardHeader);
+
+                            let cardBody = document.createElement('div');
+                            cardBody.className = 'card-body';
+                            cardBody.innerHTML = `
+                                <p><strong>IP:</strong> ${mv.ip}</p>
+                                <p><strong>MAC:</strong> ${mv.mac}</p>
+                                <p><strong>Sistema Operatiu:</strong> ${mv.sistema} ${mv.versio}</p>
+                                <h6>Components:</h6>
+                                ${generateComponentsHTMLMaquinaVirtual(mv.components)}
+                            `;
+                            card.appendChild(cardBody);
+
+                            container.appendChild(card);
+                        });
+                    } else if (data.error) {
+                        container.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    } else {
+                        container.innerHTML = `<div class="alert alert-danger">Resposta inesperada del servidor.</div>`;
                     }
-
-                    data.forEach(mv => {
-                        let card = document.createElement('div');
-                        card.className = 'card mb-4';
-
-                        let cardHeader = document.createElement('div');
-                        cardHeader.className = 'card-header';
-                        cardHeader.innerHTML = `<h5 class="card-title mb-0">${mv.nom}</h5>`;
-                        card.appendChild(cardHeader);
-
-                        let cardBody = document.createElement('div');
-                        cardBody.className = 'card-body';
-                        cardBody.innerHTML = `
-                            <p><strong>IP:</strong> ${mv.ip}</p>
-                            <p><strong>MAC:</strong> ${mv.mac}</p>
-                            <p><strong>Sistema Operatiu:</strong> ${mv.sistema} ${mv.versio}</p>
-                            <h6>Components:</h6>
-                            ${generateComponentsHTML(mv.components)}
-                        `;
-                        card.appendChild(cardBody);
-
-                        container.appendChild(card);
-                    });
                 })
                 .catch(error => {
-                    const container = document.getElementById('products-container');
+                    const container = document.getElementById('mv-product');
+                    container.innerHTML = `<div class="alert alert-danger">Error carregant les dades: ${error}</div>`;
+                });
+
+            // Fetch per a les bases de dades
+            fetch('fetchBD.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta del servidor (Bases de Dades):', data);
+                    const container = document.getElementById('bd-product');
+                    container.innerHTML = '';
+
+                    if (Array.isArray(data)) {
+                        if (data.length === 0) {
+                            container.innerHTML = '<div class="alert alert-info">No tens bases de dades.</div>';
+                            return;
+                        }
+
+                        data.forEach(bd => {
+                            let card = document.createElement('div');
+                            card.className = 'card mb-4';
+
+                            let cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+                            cardHeader.innerHTML = `<h5 class="card-title mb-0">${bd.nom}</h5>`;
+                            card.appendChild(cardHeader);
+
+                            let cardBody = document.createElement('div');
+                            cardBody.className = 'card-body';
+                            cardBody.innerHTML = `
+                                <h6>Components:</h6>
+                                ${generateComponentsHTMLBD(bd.components)}
+                            `;
+                            card.appendChild(cardBody);
+
+                            container.appendChild(card);
+                        });
+                    } else if (data.error) {
+                        container.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    } else {
+                        container.innerHTML = `<div class="alert alert-danger">Resposta inesperada del servidor.</div>`;
+                    }
+                })
+                .catch(error => {
+                    const container = document.getElementById('bd-product');
                     container.innerHTML = `<div class="alert alert-danger">Error carregant les dades: ${error}</div>`;
                 });
         });
 
-        function generateComponentsHTML(components) {
+        // Funció per generar HTML dels components de les màquines virtuals
+        function generateComponentsHTMLMaquinaVirtual(components) {
             let html = '';
 
             // CPU
-            if (components.cpu) {
-                html += `<p><strong>CPU:</strong> ${components.cpu.model} (${components.cpu.fase}) - ${components.cpu.velocitatRellotge} GHz, ${components.cpu.nuclis} nuclis, Preu: ${components.cpu.preu}€</p>`;
+            if (Array.isArray(components.cpu) && components.cpu.length > 0) {
+                html += `<p><strong>CPU(s):</strong></p><ul>`;
+                components.cpu.forEach(cpu => {
+                    html += `<li>${cpu.marca} ${cpu.model} - Velocitat de Rellotge: ${cpu.velocitatRellotge}GHz, ${cpu.nuclis} nuclis</li>`;
+                });
+                html += `</ul>`;
             }
 
             // GPU
-            if (components.gpu) {
-                html += `<p><strong>GPU:</strong> ${components.gpu.model} (${components.gpu.fase}) - ${components.gpu.nuclis} nuclis, VRAM: ${components.gpu.vram}GB ${components.gpu.generacio}, Preu: ${components.gpu.preu}€</p>`;
+            if (Array.isArray(components.gpu) && components.gpu.length > 0) {
+                html += `<p><strong>GPU(s):</strong></p><ul>`;
+                components.gpu.forEach(gpu => {
+                    html += `<li>${gpu.marca} ${gpu.model} - ${gpu.nuclis} nuclis, Capacitat: ${gpu.capacitat}GB, Generació: ${gpu.generacio}</li>`;
+                });
+                html += `</ul>`;
             }
 
             // RAM
-            if (components.ram) {
-                html += `<p><strong>RAM:</strong> ${components.ram.capacitat}GB (${components.ram.generacio}) - ${components.ram.fase}, Preu: ${components.ram.preu}€</p>`;
+            if (Array.isArray(components.ram) && components.ram.length > 0) {
+                html += `<p><strong>RAM(s):</strong></p><ul>`;
+                components.ram.forEach(ram => {
+                    html += `<li>${ram.generacio} - Capacitat: ${ram.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
             }
 
             // Discos Durs
-            if (components.discos && components.discos.length > 0) {
-                html += `<p><strong>Discos Durs:</strong></p><ul>`;
+            if (Array.isArray(components.discos) && components.discos.length > 0) {
+                html += `<p><strong>Disc(s) Dur(s):</strong></p><ul>`;
                 components.discos.forEach(disc => {
-                    html += `<li>${disc.tipus} - ${disc.capacitat}GB (${disc.fase}), Preu: ${disc.preu}€</li>`;
+                    html += `<li>${disc.tipus} - Capacitat: ${disc.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            return html;
+        }
+
+        // Funció per generar HTML dels components de les bases de dades
+        function generateComponentsHTMLBD(components) {
+            let html = '';
+
+            // CPUv
+            if (Array.isArray(components.cpuv) && components.cpuv.length > 0) {
+                html += `<p><strong>CPUv:</strong></p><ul>`;
+                components.cpuv.forEach(cpuv => {
+                    html += `<li>Velocitat de Rellotge: ${cpuv.velocitatRellotge}GHz</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // RAMv
+            if (Array.isArray(components.ramv) && components.ramv.length > 0) {
+                html += `<p><strong>RAMv:</strong></p><ul>`;
+                components.ramv.forEach(ramv => {
+                    html += `<li>Capacitat: ${ramv.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Emmagatzemament
+            if (Array.isArray(components.emm) && components.emm.length > 0) {
+                html += `<p><strong>Emmagatzemament:</strong></p><ul>`;
+                components.emm.forEach(emm => {
+                    html += `<li>Capacitat: ${emm.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // SGBD
+            if (Array.isArray(components.sgbd) && components.sgbd.length > 0) {
+                html += `<p><strong>SGBD(s):</strong></p><ul>`;
+                components.sgbd.forEach(sgbd => {
+                    html += `<li>${sgbd.nom} - Versió: ${sgbd.versio}</li>`;
                 });
                 html += `</ul>`;
             }

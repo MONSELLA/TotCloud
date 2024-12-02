@@ -3,7 +3,7 @@ include("connection.php");
 
 // Iniciar la sessió
 session_start();
-
+$_SESSION['id'] = 1;
 // Establir el tipus de contingut com JSON
 header('Content-Type: application/json');
 
