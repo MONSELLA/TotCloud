@@ -15,6 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Determinar la taula en funció del domini del correo electrònic
+    $domain = substr(strrchr($email, "@"), 1);
+    if ($domain === "totcloud.com") {
+        $table = 'personal';
+    } else {
+        $table = 'client';
+    }
+
     // Inserir el nou usuari
     $salt = '$2y$10$' . substr(str_replace('+', '.', base64_encode(random_bytes(16))), 0, 22);
     $hashedPass = crypt($contrasenya, $salt);
