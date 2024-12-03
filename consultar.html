@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TotCloud</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark" style="background-color: #343a40;">
+        <div class="container-fluid">
+            <a href="client.html" class="navbar-brand my-1 h1">TotCloud</a>
+        </div>
+    </nav>
+
+    <!-- Contingut principal -->
+    <main class="container my-5">
+        <h2 class="mb-4">Les teves Màquines Virtuals</h2>
+        <div id="mv-product">
+            <div class="alert alert-info">Carregant les teves màquines virtuals...</div>
+        </div>
+
+        <h2 class="mb-4">Les teves Bases de Dades</h2>
+        <div id="bd-product">
+            <div class="alert alert-info">Carregant les teves bases de dades...</div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>
+            <p class="mb-0">Contacte: info@totcloud.com | Telèfon: +34 900 123 456</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript per a fetch de dades -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch per a les màquines virtuals
+            fetch('fetchMaquina.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta del servidor (Maquines Virtuals):', data);
+                    const container = document.getElementById('mv-product');
+                    container.innerHTML = '';
+
+                    if (Array.isArray(data)) {
+                        if (data.length === 0) {
+                            container.innerHTML = '<div class="alert alert-info">No tens màquines virtuals.</div>';
+                            return;
+                        }
+
+                        data.forEach(mv => {
+                            let card = document.createElement('div');
+                            card.className = 'card mb-4';
+
+                            let cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+                            cardHeader.innerHTML = `<h5 class="card-title mb-0">${mv.nom}</h5>`;
+                            card.appendChild(cardHeader);
+
+                            let cardBody = document.createElement('div');
+                            cardBody.className = 'card-body';
+                            cardBody.innerHTML = `
+                                <p><strong>IP:</strong> ${mv.ip}</p>
+                                <p><strong>MAC:</strong> ${mv.mac}</p>
+                                <p><strong>Sistema Operatiu:</strong> ${mv.sistema} ${mv.versio}</p>
+                                <h6>Components:</h6>
+                                ${generateComponentsHTMLMaquinaVirtual(mv.components)}
+                            `;
+                            card.appendChild(cardBody);
+
+                            container.appendChild(card);
+                        });
+                    } else if (data.error) {
+                        container.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    } else {
+                        container.innerHTML = `<div class="alert alert-danger">Resposta inesperada del servidor.</div>`;
+                    }
+                })
+                .catch(error => {
+                    const container = document.getElementById('mv-product');
+                    container.innerHTML = `<div class="alert alert-danger">Error carregant les dades: ${error}</div>`;
+                });
+
+            // Fetch per a les bases de dades
+            fetch('fetchBD.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta del servidor (Bases de Dades):', data);
+                    const container = document.getElementById('bd-product');
+                    container.innerHTML = '';
+
+                    if (Array.isArray(data)) {
+                        if (data.length === 0) {
+                            container.innerHTML = '<div class="alert alert-info">No tens bases de dades.</div>';
+                            return;
+                        }
+
+                        data.forEach(bd => {
+                            let card = document.createElement('div');
+                            card.className = 'card mb-4';
+
+                            let cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+                            cardHeader.innerHTML = `<h5 class="card-title mb-0">${bd.nom}</h5>`;
+                            card.appendChild(cardHeader);
+
+                            let cardBody = document.createElement('div');
+                            cardBody.className = 'card-body';
+                            cardBody.innerHTML = `
+                                <h6>Components:</h6>
+                                ${generateComponentsHTMLBD(bd.components, bd.usuaris)}
+                            `;
+                            card.appendChild(cardBody);
+
+                            container.appendChild(card);
+                        });
+                    } else if (data.error) {
+                        container.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    } else {
+                        container.innerHTML = `<div class="alert alert-danger">Resposta inesperada del servidor.</div>`;
+                    }
+                })
+                .catch(error => {
+                    const container = document.getElementById('bd-product');
+                    container.innerHTML = `<div class="alert alert-danger">Error carregant les dades: ${error}</div>`;
+                });
+        });
+
+        // Funció per generar HTML dels components de les màquines virtuals
+        function generateComponentsHTMLMaquinaVirtual(components) {
+            let html = '';
+
+            // CPU
+            if (Array.isArray(components.cpu) && components.cpu.length > 0) {
+                html += `<p><strong>CPU(s):</strong></p><ul>`;
+                components.cpu.forEach(cpu => {
+                    html += `<li>${cpu.marca} ${cpu.model} - Velocitat de Rellotge: ${cpu.velocitatRellotge}GHz, ${cpu.nuclis} nuclis</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // GPU
+            if (Array.isArray(components.gpu) && components.gpu.length > 0) {
+                html += `<p><strong>GPU(s):</strong></p><ul>`;
+                components.gpu.forEach(gpu => {
+                    html += `<li>${gpu.marca} ${gpu.model} - ${gpu.nuclis} nuclis, Capacitat: ${gpu.capacitat}GB, Generació: ${gpu.generacio}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // RAM
+            if (Array.isArray(components.ram) && components.ram.length > 0) {
+                html += `<p><strong>RAM(s):</strong></p><ul>`;
+                components.ram.forEach(ram => {
+                    html += `<li>${ram.generacio} - Capacitat: ${ram.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Discos Durs
+            if (Array.isArray(components.discos) && components.discos.length > 0) {
+                html += `<p><strong>Disc(s) Dur(s):</strong></p><ul>`;
+                components.discos.forEach(disc => {
+                    html += `<li>${disc.tipus} - Capacitat: ${disc.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            return html;
+        }
+
+        // Funció per generar HTML dels components de les bases de dades
+        function generateComponentsHTMLBD(components, usuaris) {
+            let html = '';
+
+            // CPUv
+            if (Array.isArray(components.cpuv) && components.cpuv.length > 0) {
+                html += `<p><strong>CPUv:</strong></p><ul>`;
+                components.cpuv.forEach(cpuv => {
+                    html += `<li>Velocitat de Rellotge: ${cpuv.velocitatRellotge}GHz</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // RAMv
+            if (Array.isArray(components.ramv) && components.ramv.length > 0) {
+                html += `<p><strong>RAMv:</strong></p><ul>`;
+                components.ramv.forEach(ramv => {
+                    html += `<li>Capacitat: ${ramv.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Emmagatzemament
+            if (Array.isArray(components.emm) && components.emm.length > 0) {
+                html += `<p><strong>Emmagatzemament:</strong></p><ul>`;
+                components.emm.forEach(emm => {
+                    html += `<li>Capacitat: ${emm.capacitat}GB</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // SGBD
+            if (Array.isArray(components.sgbd) && components.sgbd.length > 0) {
+                html += `<p><strong>SGBD:</strong></p><ul>`;
+                components.sgbd.forEach(sgbd => {
+                    html += `<li>${sgbd.nom} - Versió: ${sgbd.versio}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Usuaris
+            if (Array.isArray(usuaris) && usuaris.length > 0) {
+                html += `<p><strong>Usuari(s):</strong></p><ul>`;
+                usuaris.forEach(usuari => {
+                    html += `<li>${usuari.nom}</li><ul>`;
+                    usuari.privilegis.forEach(privilegi => {
+                        html += `<li>${privilegi}</li>`;
+                    })
+                    html += `</ul>`;
+                });
+                html += `</ul>`;
+            }
+
+            return html;
+        }
+    </script>
+</body>
+
+</html>

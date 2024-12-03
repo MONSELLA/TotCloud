@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TotCloud</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        #clearFilterButton {
+            display: none;
+        }
+
+        .privileges-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <!-- Barra de navegació -->
+    <nav class="navbar navbar-dark" style="background-color: #343a40;">
+        <div class="container-fluid">
+            <a href="client.html" class="navbar-brand mb-0 h1">TotCloud</a>
+            <button class="btn position-relative" onclick="mostrarCistella()">
+                <img src="images/cesta.png" alt="Cistella" class="img-fluid" style="max-width: 1.8em; height: auto;">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    id="cartCount">
+                    0
+                    <span class="visually-hidden">elements a la cistella</span>
+                </span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contingut principal -->
+    <main class="container mt-5">
+        <h4 class="text-black text-primary px-2">Seleccioni els components...</h4>
+        <div class="row">
+            <!-- Panell central -->
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <!-- Filtres a l'esquerra -->
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="filtroMenu"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Filtres
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="filtroMenu">
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('cpu_virtual')">CPU
+                                        VIRTUAL</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('ram_virtual')">RAM
+                                        VIRTUAL</a></li>
+                                <li><a class="dropdown-item" href="#"
+                                        onclick="applyFilter('emmagatzemament')">EMMAGATZEMAMENT</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="applyFilter('sgbd')">SGBD</a></li>
+                            </ul>
+                            <!-- Botó per eliminar el filtre -->
+                            <button class="btn btn-danger" id="clearFilterButton" onclick="clearFilter()">X</button>
+                        </div>
+
+                        <!-- Filtres a la dreta -->
+                        <div>
+                            <select class="form-select" style="width: auto;" id="ordenPrecio" onchange="sortPrice()">
+                                <option value="asc">Preu: Menor a Major</option>
+                                <option value="desc">Preu: Major a Menor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Aquí es mostraran els components -->
+                        <div id="componentesContainer" class="row">
+                            <!-- Els components seran generats dinàmicament -->
+                            <p class="text-center text-secondary">Seleccioneu un filtre per mostrar els components
+                                disponibles.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Peu de pàgina -->
+    <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>
+            <p class="mb-0">Contacte: info@totcloud.com | Telèfon: +34 900 123 456</p>
+        </div>
+    </footer>
+
+    <!-- Modal per mostrar la cistella -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="cartModalLabel">La Teva Cistella</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contingut de la cistella -->
+                    <h5>CPU</h5>
+                    <ul id="cartCpu" class="list-group mb-3"></ul>
+                    <h5>RAM</h5>
+                    <ul id="cartRam" class="list-group mb-3"></ul>
+                    <h5>Emmagatzemament</h5>
+                    <ul id="cartEmmagatzemament" class="list-group mb-3"></ul>
+                    <h5>SGBD</h5>
+                    <ul id="cartSGBD" class="list-group mb-3"></ul>
+                    <h4>Total: <span id="cartTotal">0</span>€</h4>
+                </div>
+                <div class="modal-footer">
+                    <button id="finalitzar" type="button" class="btn btn-primary"
+                        onclick="mostrarFormBD()">Següent</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per crear la BD -->
+    <div class="modal fade" id="cartModal2" tabindex="-1" aria-labelledby="cartModal2Label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="cartModal2Label">Crear Base de dades</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulari per a la base de dades -->
+                    <p>Es crearà amb els components que has seleccionat</p>
+                    <form id="vmForm">
+                        <div class="mb-3">
+                            <label for="bdName" class="form-label">Nom de la Base de Dades</label>
+                            <input type="text" class="form-control" id="bdName"
+                                placeholder="Introdueixi el nom de la base de dades...">
+                        </div>
+                        <div id="usersContainer">
+                            <!-- User entries will be added here -->
+                            <div class="user-entry mb-3">
+                                <h5>Usuari 1</h5>
+                                <div class="mb-3">
+                                    <label for="dbUsername1" class="form-label">Nom d'Usuari</label>
+                                    <input type="text" class="form-control" id="dbUsername1"
+                                        placeholder="Introdueixi el nom d'usuari...">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dbPassword1" class="form-label">Contrasenya</label>
+                                    <input type="password" class="form-control" id="dbPassword1"
+                                        placeholder="Introdueixi la contrasenya...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Privilegis</label>
+                                    <div class="privileges-container" id="privilegesContainer1">
+                                        <p class="text-center text-secondary">Carregant privilegis...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="addUserButton">Afegir Usuari</button>
+                    </form>
+                    <!-- Missatge d'error -->
+                    <div id="errorMsg" class="text-danger"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="crear" type="button" class="btn btn-primary">Crear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentFilter = null; // Variable per emmagatzemar el filtre actual
+        let asc = "ASC";
+        let brand = "";
+        // Variables per guardar els components que l'usuari vol comprar 
+        // Es guarda l'id com a clau i la informació del component com atribut en un array
+        let cpu = new Map();
+        let emmagatzemament = new Map();
+        let sgbd = new Map();
+        let ram = new Map();
+        // Variable per guardar els privilegis
+        let availablePrivileges = [];
+
+        // Funció per agafar els components de la base de dades
+        function fetchData(queryType, asc, brand, callback) {
+            fetch(`fetchComponents.php?query=${queryType}&asc=${asc}&brand=${brand}`)
+                .then(response => {
+                    console.log(`Response for ${queryType} ${asc} ${brand}:`, response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(`Data received for ${queryType}:`, data);
+                    if (data.error) {
+                        document.getElementById('componentesContainer').innerHTML =
+                            `<p class="text-center text-secondary">${data.error}</p>`;
+                        console.error(`Error from server: ${data.error}`);
+                        return;
+                    }
+                    if (!data || !Array.isArray(data) || data.length === 0) {
+                        document.getElementById('componentesContainer').innerHTML =
+                            `<p class="text-center text-secondary">No s'han trobat components per aquest filtre.</p>`;
+                        console.error(`No valid data received for ${queryType}.`);
+                        return;
+                    }
+                    callback(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('componentesContainer').innerHTML =
+                        `<p class="text-center text-secondary">Hi ha hagut un error en carregar els components.</p>`;
+                });
+        }
+
+        // Funció per aplicar els filtres
+        function applyFilter(filter) {
+            currentFilter = filter; // Emmagatzema el filtre actual
+            document.getElementById('clearFilterButton').style.display = 'inline-block'; // Mostra el botó per eliminar el filtre
+
+            if (filter == 'sgbd') {
+                document.getElementById('ordenPrecio').style.display = 'none';
+            } else {
+                document.getElementById('ordenPrecio').style.display = 'block';
+            }
+
+            ferConsulta();
+        }
+
+        // Funció per ordenar els preus
+        function sortPrice() {
+            const order = document.getElementById('ordenPrecio').value;
+            order === 'asc' ? asc = "ASC" : asc = "DESC";
+            ferConsulta();
+        }
+
+        // Funció per eliminar el filtre
+        function clearFilter() {
+            currentFilter = null; // Elimina el filtre actual
+            brand = "";
+            document.getElementById('componentesContainer').innerHTML = `<p class="text-center text-secondary">Seleccioneu un filtre per mostrar els components disponibles.</p>`;
+            document.getElementById('clearFilterButton').style.display = 'none'; // Amaga el botó per eliminar el filtre
+        }
+
+        // Funció per fer la consulta i obtenir els components segons el filtre
+        function ferConsulta() {
+            // Comprovem que hi hagi un filtre aplicat
+            if (!currentFilter) {
+                document.getElementById('componentesContainer').innerHTML =
+                    `<p class="text-center text-secondary">Seleccioneu un filtre per mostrar els components disponibles.</p>`;
+                return;
+            }
+
+            // Cridem la funció fetchData per obtenir les dades
+            fetchData(currentFilter, asc, brand, function (data) {
+                mostrarComponents(data, currentFilter);
+            });
+        }
+
+        // Funció per mostrar els components a la pàgina
+        function mostrarComponents(data, currentFilter) {
+            let html = '';
+            switch (currentFilter) {
+                case 'cpu_virtual':
+                    data.forEach(component => {
+                        let disabled = false;
+                        if (cpu.size > 0) {
+                            disabled = true;
+                        }
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5>CPU</h5>
+                                    <p class="card-text">Velocitat de Rellotge: ${component.velocitatRellotge}GHz</p>
+                                    <p class="card-text">Preu: ${component.preu}€</p>
+                                    <button id="boto_${component.idCPUV}" class="btn btn-success" onclick="addToCart('cpu_virtual', ${component.idCPUV}, ${component.preu}, ${component.velocitatRellotge})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                    break;
+                case 'ram_virtual':
+                    data.forEach(component => {
+                        let disabled = false;
+                        if (ram.size > 0) {
+                            disabled = true;
+                        }
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5>RAM</h5>
+                                    <p class="card-text">Capacitat: ${component.capacitat}GB</p>
+                                    <p class="card-text">Preu: ${component.preu}€</p>
+                                    <button id="boto_${component.idRAMV}" class="btn btn-success" onclick="addToCart('ram_virtual', ${component.idRAMV}, ${component.preu}, ${component.capacitat})" ${disabled ? "disabled" : ""}>Afegir a la Cistella</button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                    break;
+                case 'emmagatzemament':
+                    let disabledEmm = false;
+                    if (emmagatzemament.size > 0) {
+                        disabledEmm = true;
+                    }
+                    data.forEach(component => {
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5>EMMAGATZEMAMENT</h5>
+                                    <p class="card-text">Capacitat: ${component.capacitat}GB</p>
+                                    <p class="card-text">Preu: ${component.preu}€</p>
+                                    <button id="boto_${component.idEmmagatzemament}" class="btn btn-success" onclick="addToCart('emmagatzemament', ${component.idEmmagatzemament}, ${component.preu}, ${component.capacitat})" ${disabledEmm ? "disabled" : ""}>Afegir a la Cistella</button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                    break;
+                case 'sgbd':
+                    let disabledSgbd = false;
+                    if (sgbd.size > 0) {
+                        disabledSgbd = true;
+                    }
+                    data.forEach(component => {
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5 class="card-text">${component.nom}</h5>
+                                    <p class="card-text">Versió: ${component.versio}</p>
+                                    <button id="boto_${component.idSGBD}" class="btn btn-success" onclick="addToCart('sgbd', ${component.idSGBD}, null, '${component.nom} ${component.versio}')" ${disabledSgbd ? "disabled" : ""}>Afegir a la Cistella</button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                    break;
+                default:
+                    break;
+            }
+            document.getElementById('componentesContainer').innerHTML = html;
+        }
+
+        // Funció per afegir un component a la cistella
+        function addToCart(componentType, componentId, componentPrice, info) {
+            switch (componentType) {
+                case 'cpu_virtual':
+                    cpu.set(componentId, [componentPrice, info]);
+                    break;
+                case 'ram_virtual':
+                    ram.set(componentId, [componentPrice, info]);
+                    break;
+                case 'emmagatzemament':
+                    emmagatzemament.set(componentId, [componentPrice, info]);
+                    break;
+                case 'sgbd':
+                    sgbd.set(componentId, [componentPrice, info]);
+                    break;
+                default:
+                    console.error("Tipus de component desconegut:", componentType);
+                    return;
+            }
+            // Desactivar tots els botons associats a un component si ja hi ha un a la cistella
+            document.querySelectorAll(`button[id^='boto_']`).forEach(button => {
+                if (button.id.startsWith("boto_")) {
+                    button.disabled = true;
+                }
+            });
+
+            updateCartCount();
+            console.log(`Cistella actual: 
+                CPU: ${Array.from(cpu.entries())},
+                Emm: ${Array.from(emmagatzemament.entries())},
+                Ram: ${Array.from(ram.entries())},
+                sgbd: ${Array.from(sgbd.entries())}
+            `);
+        }
+
+        // Funció per actualitzar el contador de la cistella
+        function updateCartCount() {
+            const count = cpu.size + emmagatzemament.size + ram.size + sgbd.size;
+            document.getElementById('cartCount').innerText = count;
+        }
+
+        // Funció per mostrar la cistella en la modal
+        function mostrarCistella() {
+            const currentModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+            if (currentModal) {
+                currentModal.hide();
+            }
+
+            // Pujar les llistes
+            const cartCpu = document.getElementById('cartCpu');
+            const cartSGBD = document.getElementById('cartSGBD');
+            const cartEmmagatzemament = document.getElementById('cartEmmagatzemament');
+            const cartRam = document.getElementById('cartRam');
+            const cartTotal = document.getElementById('cartTotal');
+
+            // Pujar els elements a les llistes
+            cartCpu.innerHTML = '';
+            cpu.forEach((arr, id) => {
+                cartCpu.innerHTML += `<li class="list-group-item">${arr[1]}GHz, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('cpu_virtual', ${id})">Eliminar</button></li>`;
+            });
+
+            cartRam.innerHTML = '';
+            ram.forEach((arr, id) => {
+                cartRam.innerHTML += `<li class="list-group-item">${arr[1]}GB, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('ram_virtual', ${id})">Eliminar</button></li>`;
+            });
+
+            cartEmmagatzemament.innerHTML = '';
+            emmagatzemament.forEach((arr, id) => {
+                cartEmmagatzemament.innerHTML += `<li class="list-group-item">${arr[1]}GB, Preu: ${arr[0]}€ <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('emmagatzemament', ${id})">Eliminar</button></li>`;
+            });
+
+            cartSGBD.innerHTML = '';
+            sgbd.forEach((arr, id) => {
+                cartSGBD.innerHTML += `<li class="list-group-item">${arr[1]}, Preu: N/A <button class="btn btn-sm btn-danger float-end" onclick="removeFromCart('sgbd', ${id})">Eliminar</button></li>`;
+            });
+
+            // Calcular el total
+            let total = 0;
+            cpu.forEach(arr => {
+                total += parseFloat(arr[0]);
+            });
+            ram.forEach(arr => {
+                total += parseFloat(arr[0]);
+            });
+            emmagatzemament.forEach(arr => {
+                total += parseFloat(arr[0]);
+            });
+
+            cartTotal.innerText = total.toFixed(2);
+
+            // Si no s'han seleccionat els components mínims per crear la bd no deixar continuar
+            if (cpu.size < 1 || ram.size < 1 || emmagatzemament.size < 1 || sgbd.size < 1) {
+                document.getElementById("finalitzar").disabled = true;
+            } else {
+                document.getElementById("finalitzar").disabled = false;
+            }
+
+            // Mostrar la modal
+            const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+            cartModal.show();
+        }
+
+        // Funció per eliminar un component de la cistella
+        function removeFromCart(componentType, componentId) {
+            switch (componentType) {
+                case 'cpu_virtual':
+                    cpu.delete(componentId);
+                    break;
+                case 'ram_virtual':
+                    ram.delete(componentId);
+                    break;
+                case 'emmagatzemament':
+                    emmagatzemament.delete(componentId);
+                    break;
+                case 'sgbd':
+                    sgbd.delete(componentId);
+                    break;
+                default:
+                    console.error("Tipus de component desconegut:", componentType);
+                    return;
+            }
+            // Reactivar els botons associats als components eliminats
+            document.querySelectorAll(`button[id^='boto_']`).forEach(button => {
+                if (button.id.startsWith("boto_")) {
+                    button.disabled = false;
+                }
+            });
+
+            updateCartCount();
+            mostrarCistella(); // Actualitzar la modal per reflectir els canvis
+        }
+
+        let userCount = 1; // To keep track of the number of users
+
+        // Fetch privileges when the document is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPrivilegis();
+        });
+
+        function fetchPrivilegis() {
+            fetch('fetchPrivilegis.php')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Privileges fetched:', data);
+                    availablePrivileges = data;
+                    // Populate the privileges for the first user
+                    populatePrivileges(1);
+                })
+                .catch(error => {
+                    console.error('Error fetching privileges:', error);
+                    const privilegesContainer = document.getElementById('privilegesContainer1');
+                    privilegesContainer.innerHTML = `<p class="text-danger">Error en carregar els privilegis.</p>`;
+                });
+        }
+
+        // Funció per afegir un nou usuari
+        document.getElementById('addUserButton').addEventListener('click', function () {
+            userCount++;
+            const usersContainer = document.getElementById('usersContainer');
+
+            const userEntryDiv = document.createElement('div');
+            userEntryDiv.classList.add('user-entry', 'mb-3');
+            userEntryDiv.innerHTML = `
+                <h5>Usuari ${userCount} <button type="button" class="btn btn-danger btn-sm remove-user-button">Eliminar Usuari</button></h5>
+                <div class="mb-3">
+                    <label for="dbUsername${userCount}" class="form-label">Nom d'Usuari</label>
+                    <input type="text" class="form-control" id="dbUsername${userCount}"
+                        placeholder="Introdueixi el nom d'usuari...">
+                </div>
+                <div class="mb-3">
+                    <label for="dbPassword${userCount}" class="form-label">Contrasenya</label>
+                    <input type="password" class="form-control" id="dbPassword${userCount}"
+                        placeholder="Introdueixi la contrasenya...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Privilegis</label>
+                    <div class="privileges-container" id="privilegesContainer${userCount}">
+                        <!-- Privilege checkboxes will be added here -->
+                        <p class="text-center text-secondary">Carregant privilegis...</p>
+                    </div>
+                </div>
+            `;
+            usersContainer.appendChild(userEntryDiv);
+            populatePrivileges(userCount);
+        });
+
+        // Funció per eliminar un usuari
+        document.getElementById('usersContainer').addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-user-button')) {
+                const userEntryDiv = event.target.closest('.user-entry');
+                userEntryDiv.remove();
+                updateUserHeadings();
+            }
+        });
+
+        // Funció per actualitzar els títols dels usuaris després d'eliminar
+        function updateUserHeadings() {
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            userCount = 0;
+            userEntries.forEach((entry, index) => {
+                userCount++;
+                const h5 = entry.querySelector('h5');
+                h5.innerHTML = `Usuari ${userCount} <button type="button" class="btn btn-danger btn-sm remove-user-button">Eliminar Usuari</button>`;
+                const usernameInput = entry.querySelector('input[type="text"]');
+                const passwordInput = entry.querySelector('input[type="password"]');
+                usernameInput.id = `dbUsername${userCount}`;
+                passwordInput.id = `dbPassword${userCount}`;
+                // Update privileges container ID
+                const privilegesContainer = entry.querySelector('.privileges-container');
+                privilegesContainer.id = `privilegesContainer${userCount}`;
+            });
+        }
+
+        // Funció per popular els privilegis en cada usuari
+        function populatePrivileges(userId) {
+            const privilegesContainer = document.getElementById(`privilegesContainer${userId}`);
+            if (!privilegesContainer) return;
+
+            if (availablePrivileges.length === 0) {
+                privilegesContainer.innerHTML = `<p class="text-secondary">No hi ha privilegis disponibles.</p>`;
+                return;
+            }
+
+            let privilegesHTML = '';
+            availablePrivileges.forEach(privilegi => {
+                const privilegeId = `user${userId}_priv_${privilegi.nom}`;
+                privilegesHTML += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="${privilegi.nom}" id="${privilegeId}">
+                        <label class="form-check-label" for="${privilegeId}">
+                            ${privilegi.nom}
+                        </label>
+                    </div>
+                `;
+            });
+            privilegesContainer.innerHTML = privilegesHTML;
+        }
+
+        // Funció de validació del formulari
+        function validateForm() {
+            const bdName = document.getElementById("bdName").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+            errorMsg.innerText = ""; // Netejar errors anteriors
+
+            // Validació del nom de la BD (ha de tenir almenys un caràcter)
+            if (bdName === "") {
+                errorMsg.innerText = "El nom de la base de dades no pot estar buit.";
+                return false;
+            }
+
+            // Validació dels usuaris
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            if (userEntries.length === 0) {
+                errorMsg.innerText = "Has d'afegir almenys un usuari.";
+                return false;
+            }
+
+            for (let i = 0; i < userEntries.length; i++) {
+                const usernameInput = userEntries[i].querySelector('input[type="text"]');
+                const passwordInput = userEntries[i].querySelector('input[type="password"]');
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                if (username === "") {
+                    errorMsg.innerText = `El nom d'usuari de l'Usuari ${i + 1} no pot estar buit.`;
+                    return false;
+                }
+                if (password === "") {
+                    errorMsg.innerText = `La contrasenya de l'Usuari ${i + 1} no pot estar buida.`;
+                    return false;
+                }
+                if (password.length < 6) {
+                    errorMsg.innerText = `La contrasenya de l'Usuari ${i + 1} ha de tenir almenys 6 caràcters.`;
+                    return false;
+                }
+
+                // Validació dels privilegis
+                const privileges = userEntries[i].querySelectorAll('.privileges-container input[type="checkbox"]:checked');
+                if (privileges.length === 0) {
+                    errorMsg.innerText = `Has d'assignar almenys un privilegi a l'Usuari ${i + 1}.`;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Funció per mostrar el formulari de la BD
+        function mostrarFormBD() {
+            const cartModalElement = document.getElementById('cartModal');
+            const cartModal = bootstrap.Modal.getInstance(cartModalElement);
+            if (cartModal) {
+                cartModal.hide();
+            }
+
+            // Mostrar el segon modal
+            const cartModal2Element = document.getElementById('cartModal2');
+            const cartModal2 = new bootstrap.Modal(cartModal2Element);
+            cartModal2.show();
+        }
+
+        // Gestor d'esdeveniments per al botó "Crear"
+        document.getElementById("crear").addEventListener("click", function () {
+            if (!validateForm()) {
+                return; // No continuar si la validació falla
+            }
+
+            // Recollir les dades del formulari
+            const bdName = document.getElementById("bdName").value.trim();
+
+            // Recollir els usuaris
+            const users = [];
+            const userEntries = document.querySelectorAll('#usersContainer .user-entry');
+            for (let i = 0; i < userEntries.length; i++) {
+                const usernameInput = userEntries[i].querySelector('input[type="text"]');
+                const passwordInput = userEntries[i].querySelector('input[type="password"]');
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                // Recollir els privilegis seleccionats
+                const privileges = Array.from(userEntries[i].querySelectorAll('.privileges-container input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.value);
+
+                users.push({
+                    username: username,
+                    password: password,
+                    privileges: privileges
+                });
+            }
+
+            // Recollir les claus dels Maps
+            const selectedCpu = Array.from(cpu.keys());
+            const selectedEmm = Array.from(emmagatzemament.keys());
+            const selectedSGBD = Array.from(sgbd.keys());
+            const selectedRam = Array.from(ram.keys());
+
+            // Crear un objecte amb totes les dades
+            const data = {
+                bdName: bdName,
+                users: users,
+                cpu: selectedCpu,
+                emmagatzemament: selectedEmm,
+                ram: selectedRam,
+                sgbd: selectedSGBD
+            };
+
+            // Enviar les dades a crear_bd.php mitjançant fetch
+            fetch('crear_bd.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    console.log('Resposta HTTP:', response.status);
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Resultat:', result);
+                    if (result.success) {
+                        alert(result.message);
+                        window.location.href = "client.html"; // Redirigeix a client.html
+                    } else {
+                        alert("No s'ha pogut crear la base de dades: " + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en fetch:', error);
+                    alert("Hi ha hagut un error en crear la base de dades.");
+                });
+
+        });
+    </script>
+</body>
+
+</html>
