@@ -34,8 +34,39 @@ class EMMAGATZEMAMENT
 
     public function getHTML()
     {
-        $result = $this->conn->query("SELECT * FROM EMMAGATZEMAMENT");
+        // Paginación
+        $limit = 6;
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        // Búsqueda
+        $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
+        $searchQuery = $search ? "WHERE capacitat LIKE '%$search%' OR preu LIKE '%$search%'" : '';
+
+        // Total de registros
+        $totalQuery = "SELECT COUNT(*) AS total FROM EMMAGATZEMAMENT $searchQuery";
+        $totalResult = $this->conn->query($totalQuery);
+        $totalRecords = $totalResult->fetch_assoc()['total'];
+        $totalPages = ceil($totalRecords / $limit);
+
+        // Registros actuales
+        $query = "SELECT * FROM EMMAGATZEMAMENT $searchQuery LIMIT $limit OFFSET $offset";
+        $result = $this->conn->query($query);
+
         ob_start(); ?>
+        <!-- Formulario de búsqueda -->
+        <form method="GET" class="mb-4">
+            <input type="hidden" name="section" value="emmagatzemament">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Cercar per capacitat o preu..."
+                    value="<?= htmlspecialchars($search); ?>">
+                <button class="btn btn-primary" type="submit">Cercar</button>
+                <a href="?section=emmagatzemament" class="btn btn-danger" title="Limpiar búsqueda">✖</a>
+            </div>
+        </form>
+
+
+        <!-- Formulario de agregar -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="capacitat" class="form-label">Capacitat:</label>
@@ -47,6 +78,8 @@ class EMMAGATZEMAMENT
             </div>
             <button type="submit" name="add_emmagatzemament" class="btn btn-success w-100">Afegir Emmagatzemament</button>
         </form>
+
+        <!-- Tabla de registros -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -57,24 +90,46 @@ class EMMAGATZEMAMENT
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['idEmmagatzemament']); ?></td>
+                            <td><?= htmlspecialchars($row['capacitat']); ?></td>
+                            <td><?= htmlspecialchars($row['preu']); ?></td>
+                            <td>
+                                <!-- Botón Eliminar -->
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="idEmmagatzemament" value="<?= $row['idEmmagatzemament']; ?>">
+                                    <button type="submit" name="delete_emmagatzemament" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                                <!-- Botón Actualizar -->
+                                <button type="button" class="btn btn-primary"
+                                    onclick="mostrarFormularioActualizar(<?= $row['idEmmagatzemament']; ?>, '<?= htmlspecialchars($row['capacitat']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
                     <tr>
-                        <td><?= htmlspecialchars($row['idEmmagatzemament']); ?></td>
-                        <td><?= htmlspecialchars($row['capacitat']); ?></td>
-                        <td><?= htmlspecialchars($row['preu']); ?></td>
-                        <td>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="idEmmagatzemament" value="<?= $row['idEmmagatzemament']; ?>">
-                                <button type="submit" name="delete_emmagatzemament" class="btn btn-danger">Eliminar</button>
-                            </form>
-                            <button type="button" class="btn btn-primary"
-                                onclick="mostrarFormularioActualizar(<?= $row['idEmmagatzemament']; ?>, '<?= htmlspecialchars($row['capacitat']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
-                        </td>
+                        <td colspan="4" class="text-center">No s'han trobat resultats.</td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endif; ?>
             </tbody>
         </table>
 
+        <!-- Paginación -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= $i == $page ? 'active' : ''; ?>">
+                        <a class="page-link"
+                            href="?section=emmagatzemament&page=<?= $i; ?>&search=<?= htmlspecialchars($search); ?>"><?= $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </nav>
+
+        <!-- Formulario para Actualizar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idEmmagatzemament" id="idEmmagatzemament-actualizar">
@@ -86,8 +141,8 @@ class EMMAGATZEMAMENT
                     <label for="preu-actualizar" class="form-label">Preu:</label>
                     <input type="number" step="0.01" name="preu" id="preu-actualizar" class="form-control" required>
                 </div>
-                <button type="submit" name="update_emmagatzemament" class="btn btn-success">Guardar canvis</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
+                <button type="submit" name="update_emmagatzemament" class="btn btn-success">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
             </form>
         </div>
 
@@ -103,7 +158,7 @@ class EMMAGATZEMAMENT
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 }

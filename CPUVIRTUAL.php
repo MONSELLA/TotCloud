@@ -34,8 +34,39 @@ class CPUVIRTUAL
 
     public function getHTML()
     {
-        $result = $this->conn->query("SELECT * FROM CPU_VIRTUAL");
+        // Paginación
+        $limit = 6;
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        // Búsqueda
+        $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
+        $searchQuery = $search ? "WHERE velocitatRellotge LIKE '%$search%' OR preu LIKE '%$search%'" : '';
+
+        // Total de registros
+        $totalQuery = "SELECT COUNT(*) AS total FROM CPU_VIRTUAL $searchQuery";
+        $totalResult = $this->conn->query($totalQuery);
+        $totalRecords = $totalResult->fetch_assoc()['total'];
+        $totalPages = ceil($totalRecords / $limit);
+
+        // Registros actuales
+        $query = "SELECT * FROM CPU_VIRTUAL $searchQuery LIMIT $limit OFFSET $offset";
+        $result = $this->conn->query($query);
+
         ob_start(); ?>
+        <!-- Formulario de búsqueda -->
+        <form method="GET" class="mb-4">
+            <input type="hidden" name="section" value="cpuvirtual">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Cercar per velocitat o preu..."
+                    value="<?= htmlspecialchars($search); ?>">
+                <button class="btn btn-primary" type="submit">Cercar</button>
+                <a href="?section=cpuvirtual" class="btn btn-danger" title="Limpiar búsqueda">✖</a>
+            </div>
+        </form>
+
+
+        <!-- Formulario de agregar -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="velocitatRellotge" class="form-label">Velocitat Rellotge:</label>
@@ -47,6 +78,8 @@ class CPUVIRTUAL
             </div>
             <button type="submit" name="add_cpuvirtual" class="btn btn-success w-100">Afegir CPU Virtual</button>
         </form>
+
+        <!-- Tabla de registros -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -57,24 +90,46 @@ class CPUVIRTUAL
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['idCPUV']); ?></td>
+                            <td><?= htmlspecialchars($row['velocitatRellotge']); ?></td>
+                            <td><?= htmlspecialchars($row['preu']); ?></td>
+                            <td>
+                                <!-- Botón Eliminar -->
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="idCPUV" value="<?= $row['idCPUV']; ?>">
+                                    <button type="submit" name="delete_cpuvirtual" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                                <!-- Botón Actualizar -->
+                                <button type="button" class="btn btn-primary"
+                                    onclick="mostrarFormularioActualizar(<?= $row['idCPUV']; ?>, '<?= htmlspecialchars($row['velocitatRellotge']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
                     <tr>
-                        <td><?= htmlspecialchars($row['idCPUV']); ?></td>
-                        <td><?= htmlspecialchars($row['velocitatRellotge']); ?></td>
-                        <td><?= htmlspecialchars($row['preu']); ?></td>
-                        <td>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="idCPUV" value="<?= $row['idCPUV']; ?>">
-                                <button type="submit" name="delete_cpuvirtual" class="btn btn-danger">Eliminar</button>
-                            </form>
-                            <button type="button" class="btn btn-primary"
-                                onclick="mostrarFormularioActualizar(<?= $row['idCPUV']; ?>, '<?= htmlspecialchars($row['velocitatRellotge']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
-                        </td>
+                        <td colspan="4" class="text-center">No s'han trobat resultats.</td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endif; ?>
             </tbody>
         </table>
 
+        <!-- Paginación -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= $i == $page ? 'active' : ''; ?>">
+                        <a class="page-link"
+                            href="?section=cpuvirtual&page=<?= $i; ?>&search=<?= htmlspecialchars($search); ?>"><?= $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </nav>
+
+        <!-- Formulario para Actualizar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idCPUV" id="idCPUV-actualizar">
@@ -87,8 +142,8 @@ class CPUVIRTUAL
                     <label for="preu-actualizar" class="form-label">Preu:</label>
                     <input type="number" step="0.01" name="preu" id="preu-actualizar" class="form-control" required>
                 </div>
-                <button type="submit" name="update_cpuvirtual" class="btn btn-success">Guardar canvis</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
+                <button type="submit" name="update_cpuvirtual" class="btn btn-success">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
             </form>
         </div>
 
@@ -104,7 +159,7 @@ class CPUVIRTUAL
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 }

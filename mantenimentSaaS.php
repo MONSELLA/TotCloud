@@ -1,5 +1,5 @@
 <?php
-// Incloure les classes necessàries
+// Incluir las clases necesarias
 include "connection.php";
 include "CONFIGURACIO.php";
 include "CPUVIRTUAL.php";
@@ -7,85 +7,105 @@ include "EMMAGATZEMAMENT.php";
 include "RAMVIRTUAL.php";
 include "SGBD.php";
 
-// Crear instàncies de les classes
+// Crear instancias de las clases
 $configManager = new CONFIGURACIO($conn);
 $cpuManager = new CPUVIRTUAL($conn);
 $storageManager = new EMMAGATZEMAMENT($conn);
 $ramManager = new RAMVIRTUAL($conn);
 $sgbdManager = new SGBD($conn);
 
-// Gestionar sol·licituds POST
+// Manejar solicitudes POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_section = $_GET['section'] ?? 'configuracio'; // Obtenir la secció actual
+    $current_section = $_GET['section'] ?? 'configuracio'; // Obtener la sección actual
 
     // CONFIGURACIO
     if (isset($_POST['add_configuracio'])) {
+        $certSsl = $_POST['certSsl'] ?? null;
         $port = $_POST['port'] ?? null;
-        if ($port)
-            $configManager->addConfiguracio($port);
+        $maxConnexions = $_POST['maxConnexions'] ?? null;
+        $rvaConnexions = $_POST['rvaConnexions'] ?? null;
+
+        if ($certSsl && $port && $maxConnexions && $rvaConnexions) {
+            $configManager->addConfiguracio($certSsl, $port, $maxConnexions, $rvaConnexions);
+        }
     } elseif (isset($_POST['delete_configuracio'])) {
         $idConfig = $_POST['idConfig'] ?? null;
-        if ($idConfig)
+        if ($idConfig) {
             $configManager->deleteConfiguracio($idConfig);
+        }
     } elseif (isset($_POST['update_configuracio'])) {
         $idConfig = $_POST['idConfig'] ?? null;
+        $certSsl = $_POST['certSsl'] ?? null;
         $port = $_POST['port'] ?? null;
-        if ($idConfig && $port)
-            $configManager->updateConfiguracio($idConfig, $port);
+        $maxConnexions = $_POST['maxConnexions'] ?? null;
+        $rvaConnexions = $_POST['rvaConnexions'] ?? null;
+
+        if ($idConfig && $certSsl && $port && $maxConnexions && $rvaConnexions) {
+            $configManager->updateConfiguracio($idConfig, $certSsl, $port, $maxConnexions, $rvaConnexions);
+        }
     }
 
     // CPUVIRTUAL
     if (isset($_POST['add_cpuvirtual'])) {
         $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($velocitatRellotge && $preu)
+        if ($velocitatRellotge && $preu) {
             $cpuManager->addCPUVIRTUAL($velocitatRellotge, $preu);
+        }
     } elseif (isset($_POST['delete_cpuvirtual'])) {
         $idCPUV = $_POST['idCPUV'] ?? null;
-        if ($idCPUV)
+        if ($idCPUV) {
             $cpuManager->deleteCPUVIRTUAL($idCPUV);
+        }
     } elseif (isset($_POST['update_cpuvirtual'])) {
         $idCPUV = $_POST['idCPUV'] ?? null;
         $velocitatRellotge = $_POST['velocitatRellotge'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($idCPUV && $velocitatRellotge && $preu)
+        if ($idCPUV && $velocitatRellotge && $preu) {
             $cpuManager->updateCPUVIRTUAL($idCPUV, $velocitatRellotge, $preu);
+        }
     }
 
     // EMMAGATZEMAMENT
     if (isset($_POST['add_emmagatzemament'])) {
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($capacitat && $preu)
+        if ($capacitat && $preu) {
             $storageManager->addEmmagatzemament($capacitat, $preu);
+        }
     } elseif (isset($_POST['delete_emmagatzemament'])) {
         $idEmmagatzemament = $_POST['idEmmagatzemament'] ?? null;
-        if ($idEmmagatzemament)
+        if ($idEmmagatzemament) {
             $storageManager->deleteEmmagatzemament($idEmmagatzemament);
+        }
     } elseif (isset($_POST['update_emmagatzemament'])) {
         $idEmmagatzemament = $_POST['idEmmagatzemament'] ?? null;
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($idEmmagatzemament && $capacitat && $preu)
+        if ($idEmmagatzemament && $capacitat && $preu) {
             $storageManager->updateEmmagatzemament($idEmmagatzemament, $capacitat, $preu);
+        }
     }
 
     // RAMVIRTUAL
     if (isset($_POST['add_ramvirtual'])) {
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($capacitat && $preu)
+        if ($capacitat && $preu) {
             $ramManager->addRAMVIRTUAL($capacitat, $preu);
+        }
     } elseif (isset($_POST['delete_ramvirtual'])) {
         $idRAMV = $_POST['idRAMV'] ?? null;
-        if ($idRAMV)
+        if ($idRAMV) {
             $ramManager->deleteRAMVIRTUAL($idRAMV);
+        }
     } elseif (isset($_POST['update_ramvirtual'])) {
         $idRAMV = $_POST['idRAMV'] ?? null;
         $capacitat = $_POST['capacitat'] ?? null;
         $preu = $_POST['preu'] ?? null;
-        if ($idRAMV && $capacitat && $preu)
+        if ($idRAMV && $capacitat && $preu) {
             $ramManager->updateRAMVIRTUAL($idRAMV, $capacitat, $preu);
+        }
     }
 
     // SGBD
@@ -93,22 +113,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nom = $_POST['nom'] ?? null;
         $versio = $_POST['versio'] ?? null;
         $idConfig = $_POST['idConfig'] ?? null;
-        if ($nom && $versio && $idConfig)
+        if ($nom && $versio && $idConfig) {
             $sgbdManager->addSGBD($nom, $versio, $idConfig);
+        }
     } elseif (isset($_POST['delete_sgbd'])) {
         $idSGBD = $_POST['idSGBD'] ?? null;
-        if ($idSGBD)
+        if ($idSGBD) {
             $sgbdManager->deleteSGBD($idSGBD);
+        }
     } elseif (isset($_POST['update_sgbd'])) {
         $idSGBD = $_POST['idSGBD'] ?? null;
         $nom = $_POST['nom'] ?? null;
         $versio = $_POST['versio'] ?? null;
         $idConfig = $_POST['idConfig'] ?? null;
-        if ($idSGBD && $nom && $versio && $idConfig)
+        if ($idSGBD && $nom && $versio && $idConfig) {
             $sgbdManager->updateSGBD($idSGBD, $nom, $versio, $idConfig);
+        }
     }
 
-    // Redirigir després de processar
+    // Redirigir después de procesar
     header("Location: " . $_SERVER['PHP_SELF'] . "?section=" . $current_section);
     exit;
 }
@@ -154,8 +177,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 
-<body>
-    <div class="d-flex">
+<body class="d-flex flex-column min-vh-100">
+    <!-- Encabezado -->
+    <nav class="navbar navbar-dark" style="background-color: #343a40;">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">TotCloud</span>
+            <!-- Botón de menú -->
+            <a href="menu.php" class="btn btn-primary">MENU</a>
+        </div>
+    </nav>
+
+    <div class="d-flex flex-grow-1">
         <!-- Sidebar -->
         <nav class="sidebar">
             <button
@@ -202,6 +234,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ?>
         </div>
     </div>
+
+    <!-- Pie de página -->
+    <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>
+            <p class="mb-0">Contacte: info@totcloud.com | Telèfon: +34 900 123 456</p>
+        </div>
+    </footer>
 </body>
 
 </html>

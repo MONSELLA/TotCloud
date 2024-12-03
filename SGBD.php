@@ -42,9 +42,40 @@ class SGBD
 
     public function getHTML()
     {
-        $result = $this->conn->query("SELECT * FROM SGBD");
+        // Paginación
+        $limit = 6;
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        // Búsqueda
+        $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
+        $searchQuery = $search ? "WHERE nom LIKE '%$search%' OR versio LIKE '%$search%' OR idConfig LIKE '%$search%'" : '';
+
+        // Total de registros
+        $totalQuery = "SELECT COUNT(*) AS total FROM SGBD $searchQuery";
+        $totalResult = $this->conn->query($totalQuery);
+        $totalRecords = $totalResult->fetch_assoc()['total'];
+        $totalPages = ceil($totalRecords / $limit);
+
+        // Registros actuales
+        $query = "SELECT * FROM SGBD $searchQuery LIMIT $limit OFFSET $offset";
+        $result = $this->conn->query($query);
         $configurations = $this->getConfigurations();
+
         ob_start(); ?>
+        <!-- Formulario de búsqueda -->
+        <form method="GET" class="mb-4">
+            <input type="hidden" name="section" value="sgbd">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Cercar per nom, versio o configuració..."
+                    value="<?= htmlspecialchars($search); ?>">
+                <button class="btn btn-primary" type="submit">Cercar</button>
+                <a href="?section=sgbd" class="btn btn-danger" title="Limpiar búsqueda">✖</a>
+            </div>
+        </form>
+
+
+        <!-- Formulario de agregar -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom:</label>
@@ -67,6 +98,8 @@ class SGBD
             </div>
             <button type="submit" name="add_sgbd" class="btn btn-success w-100">Afegir SGBD</button>
         </form>
+
+        <!-- Tabla de registros -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -78,25 +111,47 @@ class SGBD
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['idSGBD']); ?></td>
+                            <td><?= htmlspecialchars($row['nom']); ?></td>
+                            <td><?= htmlspecialchars($row['versio']); ?></td>
+                            <td><?= htmlspecialchars($row['idConfig']); ?></td>
+                            <td>
+                                <!-- Botón Eliminar -->
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="idSGBD" value="<?= $row['idSGBD']; ?>">
+                                    <button type="submit" name="delete_sgbd" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                                <!-- Botón Actualizar -->
+                                <button type="button" class="btn btn-primary"
+                                    onclick="mostrarFormularioActualizar(<?= $row['idSGBD']; ?>, '<?= htmlspecialchars($row['nom']); ?>', '<?= htmlspecialchars($row['versio']); ?>', <?= $row['idConfig']; ?>)">Actualizar</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
                     <tr>
-                        <td><?= htmlspecialchars($row['idSGBD']); ?></td>
-                        <td><?= htmlspecialchars($row['nom']); ?></td>
-                        <td><?= htmlspecialchars($row['versio']); ?></td>
-                        <td><?= htmlspecialchars($row['idConfig']); ?></td>
-                        <td>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="idSGBD" value="<?= $row['idSGBD']; ?>">
-                                <button type="submit" name="delete_sgbd" class="btn btn-danger">Eliminar</button>
-                            </form>
-                            <button type="button" class="btn btn-primary"
-                                onclick="mostrarFormularioActualizar(<?= $row['idSGBD']; ?>, '<?= htmlspecialchars($row['nom']); ?>', '<?= htmlspecialchars($row['versio']); ?>', <?= $row['idConfig']; ?>)">Actualizar</button>
-                        </td>
+                        <td colspan="5" class="text-center">No s'han trobat resultats.</td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endif; ?>
             </tbody>
         </table>
 
+        <!-- Paginación -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= $i == $page ? 'active' : ''; ?>">
+                        <a class="page-link"
+                            href="?section=sgbd&page=<?= $i; ?>&search=<?= htmlspecialchars($search); ?>"><?= $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </nav>
+
+        <!-- Formulario para Actualizar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idSGBD" id="idSGBD-actualizar">
@@ -121,8 +176,8 @@ class SGBD
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <button type="submit" name="update_sgbd" class="btn btn-success">Guardar canvis</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancel·lar</button>
+                <button type="submit" name="update_sgbd" class="btn btn-success">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarFormulario()">Cancelar</button>
             </form>
         </div>
 
@@ -139,7 +194,7 @@ class SGBD
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 }
