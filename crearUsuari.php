@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Verificar que els camps obligatoris no estiguin buits
     if (empty($nom) || empty($llinatge1) || empty($nick) || empty($contrasenya) || empty($email)) {
-        echo "Error: Els camps 'Nom', 'Primer cognom', 'Nick', 'Contrasenya' i 'Email' no poden estar buits.";
+        echo "Els camps 'Nom', 'Primer cognom', 'Nick', 'Contrasenya' i 'Email' no poden estar buits.";
         exit;
     }
 
@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ssssss", $nom, $llinatge1, $llinatge2, $nick, $hashedPass, $email);
 
     if ($stmt->execute()) {
-        echo "Usuari creat correctament a la taula $table. <a href='login.html'>Torna a l'inici</a>";
+        header("Location: login.html");
+        exit(); // Asegúrate de finalizar el script después de la redirección
     } else {
         echo "Error al crear l'usuari: " . $conn->error;
     }

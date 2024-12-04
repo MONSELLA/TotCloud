@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">TotCloud</span>
             <!-- Botón de menú -->
-            <a href="menu.php" class="btn btn-primary">MENU</a>
+            <a href="personal.html" class="btn btn-primary">MENU</a>
         </div>
     </nav>
 

@@ -330,6 +330,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
+
+    <!-- Encabezado -->
+    <nav class="navbar navbar-dark" style="background-color: #343a40;">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">TotCloud</span>
+            <!-- Botón de menú -->
+            <a href="personal.html" class="btn btn-primary">MENU</a>
+        </div>
+    </nav>
+
     <div class="d-flex">
         <!-- Barra lateral -->
         <nav class="sidebar">
