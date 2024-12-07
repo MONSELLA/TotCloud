@@ -572,37 +572,6 @@
             mostrarCistella(); // Actualitzar la modal per reflectir els canvis
         }
 
-        // Funció de validació del formulari
-        function validateForm() {
-            const vmName = document.getElementById("vmName").value.trim();
-            const vmIp = document.getElementById("vmIp").value.trim();
-            const vmMac = document.getElementById("vmMac").value.trim();
-            const errorMsg = document.getElementById("errorMsg");
-            errorMsg.innerText = ""; // Clear previous errors
-
-            // Validació del nom de la MV (ha de tenir almenys un caràcter)
-            if (vmName === "") {
-                errorMsg.innerText = "El nom de la MV no pot estar buit.";
-                return false;
-            }
-
-            // Validació de l'adreça IP
-            const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/;
-            if (!ipRegex.test(vmIp)) {
-                errorMsg.innerText = "L'adreça IP no és vàlida. Ha de ser en format IPv4 (ex: 192.168.1.1).";
-                return false;
-            }
-
-            // Validació de l'adreça MAC
-            const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-            if (!macRegex.test(vmMac)) {
-                errorMsg.innerText = "L'adreça MAC no és vàlida. Ha de ser en format (ex: 00:1A:2B:3C:4D:5E).";
-                return false;
-            }
-
-            return true;
-        }
-
         // Funció per mostrar el formulari de la MV
         function mostrarFormMV() {
             const cartModalElement = document.getElementById('cartModal');
@@ -619,10 +588,6 @@
 
         // Gestor d'esdeveniments per al botó "Crear"
         document.getElementById("crear").addEventListener("click", function () {
-            if (!validateForm()) {
-                return; // No continuar si la validació falla
-            }
-
             // Recollir les dades del formulari
             const vmName = document.getElementById("vmName").value.trim();
             const vmIp = document.getElementById("vmIp").value.trim();

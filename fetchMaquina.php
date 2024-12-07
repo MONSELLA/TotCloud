@@ -2,7 +2,7 @@
 include('connection.php');
 header('Content-Type: application/json');
 session_start();
-$_SESSION['id'] = 1;
+
 // Comprovar si l'usuari ha iniciat sessió
 if (!isset($_SESSION['id'])) {
     echo json_encode(["error" => "No has iniciat sessió."]);

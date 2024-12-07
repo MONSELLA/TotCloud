@@ -4,6 +4,12 @@ include("connection.php");
 // Iniciar la sessió
 session_start();
 
+// Comprovar si l'usuari ha iniciat sessió
+if (!isset($_SESSION['id'])) {
+    echo json_encode(["error" => "No has iniciat sessió."]);
+    exit();
+}
+
 // Establir el tipus de contingut com JSON
 header('Content-Type: application/json');
 
@@ -19,9 +25,22 @@ try {
         throw new Exception('Dades JSON invàlides.');
     }
 
+    // Preparar la crida a l'Stored Procedure per validar els camps
+    $sql = "CALL validar_camps(?, ?, ?);";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception('No s\'ha pogut preparar la consulta: ' . $conn->error);
+    }
+
     $vmName = htmlspecialchars($data['vmName']);
     $vmIp = htmlspecialchars($data['vmIp']);
     $vmMac = htmlspecialchars($data['vmMac']);
+
+    $stmt->bind_param("sss", $vmName, $vmIp, $vmMac);
+    if (!$stmt->execute()) {
+        throw new Exception($stmt->error);
+    }
+
     $cpus = $data['cpus']; // Array d'IDs de CPUs
     $gpus = $data['gpus']; // Array d'IDs de GPUs
     $discs_durs = $data['discs_durs']; // Array d'IDs de Discs Durs
@@ -102,7 +121,6 @@ try {
     echo json_encode([
         'success' => true,
         'message' => 'La màquina virtual s\'ha creat correctament.'
-        //'message' => 'La màquina virtual s\'ha creat correctament. Nom: ' . $vmName . ', IP: ' . $vmIp . ', MAC: ' . $vmMac . ', CPUs: ' . implode(', ', $cpus)
     ]);
 } catch (Exception $e) {
     // Rebutjar la transacció
