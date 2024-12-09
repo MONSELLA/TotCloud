@@ -34,27 +34,27 @@ class EMMAGATZEMAMENT
 
     public function getHTML()
     {
-        // Paginación
+        // Paginació
         $limit = 6;
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
         $offset = ($page - 1) * $limit;
 
-        // Búsqueda
+        // Cerca de producets
         $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
         $searchQuery = $search ? "WHERE capacitat LIKE '%$search%' OR preu LIKE '%$search%'" : '';
 
-        // Total de registros
+        // Registres totals
         $totalQuery = "SELECT COUNT(*) AS total FROM EMMAGATZEMAMENT $searchQuery";
         $totalResult = $this->conn->query($totalQuery);
         $totalRecords = $totalResult->fetch_assoc()['total'];
         $totalPages = ceil($totalRecords / $limit);
 
-        // Registros actuales
+        // Registres actuals
         $query = "SELECT * FROM EMMAGATZEMAMENT $searchQuery LIMIT $limit OFFSET $offset";
         $result = $this->conn->query($query);
 
         ob_start(); ?>
-        <!-- Formulario de búsqueda -->
+        <!-- Formulari de cerca -->
         <form method="GET" class="mb-4">
             <input type="hidden" name="section" value="emmagatzemament">
             <div class="input-group">
@@ -66,7 +66,7 @@ class EMMAGATZEMAMENT
         </form>
 
 
-        <!-- Formulario de agregar -->
+        <!-- Formulario d'agreagció-->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="capacitat" class="form-label">Capacitat:</label>
@@ -79,7 +79,7 @@ class EMMAGATZEMAMENT
             <button type="submit" name="add_emmagatzemament" class="btn btn-success w-100">Afegir Emmagatzemament</button>
         </form>
 
-        <!-- Tabla de registros -->
+        <!-- Taula de registres -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -97,13 +97,13 @@ class EMMAGATZEMAMENT
                             <td><?= htmlspecialchars($row['capacitat']); ?></td>
                             <td><?= htmlspecialchars($row['preu']); ?></td>
                             <td>
-                                <!-- Botón Eliminar -->
+                                <!-- Botó eliminar -->
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="idEmmagatzemament" value="<?= $row['idEmmagatzemament']; ?>">
                                     <button type="submit" name="delete_emmagatzemament" class="btn btn-danger">Eliminar</button>
                                 </form>
 
-                                <!-- Botón Actualizar -->
+                                <!-- Botón actualitzar -->
                                 <button type="button" class="btn btn-primary"
                                     onclick="mostrarFormularioActualizar(<?= $row['idEmmagatzemament']; ?>, '<?= htmlspecialchars($row['capacitat']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
                             </td>
@@ -117,7 +117,7 @@ class EMMAGATZEMAMENT
             </tbody>
         </table>
 
-        <!-- Paginación -->
+        <!-- Paginació -->
         <nav>
             <ul class="pagination justify-content-center">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -129,7 +129,7 @@ class EMMAGATZEMAMENT
             </ul>
         </nav>
 
-        <!-- Formulario para Actualizar -->
+        <!-- Formulario per Actualitzar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idEmmagatzemament" id="idEmmagatzemament-actualizar">
@@ -158,7 +158,7 @@ class EMMAGATZEMAMENT
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 }

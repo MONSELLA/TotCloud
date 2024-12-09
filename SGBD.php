@@ -42,28 +42,28 @@ class SGBD
 
     public function getHTML()
     {
-        // Paginación
+        // Paginació
         $limit = 6;
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
         $offset = ($page - 1) * $limit;
 
-        // Búsqueda
+        // Cerca
         $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
         $searchQuery = $search ? "WHERE nom LIKE '%$search%' OR versio LIKE '%$search%' OR idConfig LIKE '%$search%'" : '';
 
-        // Total de registros
+        // Registres totals
         $totalQuery = "SELECT COUNT(*) AS total FROM SGBD $searchQuery";
         $totalResult = $this->conn->query($totalQuery);
         $totalRecords = $totalResult->fetch_assoc()['total'];
         $totalPages = ceil($totalRecords / $limit);
 
-        // Registros actuales
+        // Registres actuals
         $query = "SELECT * FROM SGBD $searchQuery LIMIT $limit OFFSET $offset";
         $result = $this->conn->query($query);
         $configurations = $this->getConfigurations();
 
         ob_start(); ?>
-        <!-- Formulario de búsqueda -->
+        <!-- Formulari de cerca -->
         <form method="GET" class="mb-4">
             <input type="hidden" name="section" value="sgbd">
             <div class="input-group">
@@ -75,7 +75,7 @@ class SGBD
         </form>
 
 
-        <!-- Formulario de agregar -->
+        <!-- Formulari d'agregació -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom:</label>
@@ -99,7 +99,7 @@ class SGBD
             <button type="submit" name="add_sgbd" class="btn btn-success w-100">Afegir SGBD</button>
         </form>
 
-        <!-- Tabla de registros -->
+        <!-- Tabla de registres -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -125,7 +125,7 @@ class SGBD
                                     <button type="submit" name="delete_sgbd" class="btn btn-danger">Eliminar</button>
                                 </form>
 
-                                <!-- Botón Actualizar -->
+                                <!-- Botó actualitzar -->
                                 <button type="button" class="btn btn-primary"
                                     onclick="mostrarFormularioActualizar(<?= $row['idSGBD']; ?>, '<?= htmlspecialchars($row['nom']); ?>', '<?= htmlspecialchars($row['versio']); ?>', <?= $row['idConfig']; ?>)">Actualizar</button>
                             </td>
@@ -139,7 +139,7 @@ class SGBD
             </tbody>
         </table>
 
-        <!-- Paginación -->
+        <!-- Paginació -->
         <nav>
             <ul class="pagination justify-content-center">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -151,7 +151,7 @@ class SGBD
             </ul>
         </nav>
 
-        <!-- Formulario para Actualizar -->
+        <!-- Formulari per actualitzar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idSGBD" id="idSGBD-actualizar">
@@ -194,7 +194,7 @@ class SGBD
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 }
