@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Pie de página -->
+    <!-- Peu de pàgina -->
     <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
         <div class="container">
             <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>

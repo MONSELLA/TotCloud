@@ -88,11 +88,11 @@ class CONFIGURACIO
                 <input type="number" name="port" id="port" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="maxConnexions" class="form-label">Connexions Máximes:</label>
+                <label for="maxConnexions" class="form-label">Connexions Màximes:</label>
                 <input type="number" name="maxConnexions" id="maxConnexions" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="rvaConnexions" class="form-label">Revisió de Connexions:</label>
+                <label for="rvaConnexions" class="form-label">Connexions Reservades:</label>
                 <input type="number" name="rvaConnexions" id="rvaConnexions" class="form-control" required>
             </div>
             <button type="submit" name="add_configuracio" class="btn btn-success w-100">Afegir Configuració</button>
@@ -105,8 +105,8 @@ class CONFIGURACIO
                     <th>ID</th>
                     <th>Certificat SSL</th>
                     <th>Port</th>
-                    <th>Connexions Máximes</th>
-                    <th>Revisió de Connexions</th>
+                    <th>Connexions Màximes</th>
+                    <th>Connexions Reservades</th>
                     <th>Accions</th>
                 </tr>
             </thead>
@@ -170,11 +170,11 @@ class CONFIGURACIO
                     <input type="number" name="port" id="port-actualizar" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="maxConnexions-actualizar" class="form-label">Connexions Máximes:</label>
+                    <label for="maxConnexions-actualizar" class="form-label">Connexions Màximes:</label>
                     <input type="number" name="maxConnexions" id="maxConnexions-actualizar" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="rvaConnexions-actualizar" class="form-label">Revisió de Connexions:</label>
+                    <label for="rvaConnexions-actualizar" class="form-label">Connexions Reservades:</label>
                     <input type="number" name="rvaConnexions" id="rvaConnexions-actualizar" class="form-control" required>
                 </div>
                 <button type="submit" name="update_configuracio" class="btn btn-success">Guardar Cambios</button>
