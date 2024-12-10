@@ -7,16 +7,16 @@ include "EMMAGATZEMAMENT.php";
 include "RAMVIRTUAL.php";
 include "SGBD.php";
 
-// Crear instancias de las clases
+// Crear instancis de classes
 $configManager = new CONFIGURACIO($conn);
 $cpuManager = new CPUVIRTUAL($conn);
 $storageManager = new EMMAGATZEMAMENT($conn);
 $ramManager = new RAMVIRTUAL($conn);
 $sgbdManager = new SGBD($conn);
 
-// Manejar solicitudes POST
+// Manejar solicituds POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_section = $_GET['section'] ?? 'configuracio'; // Obtener la sección actual
+    $current_section = $_GET['section'] ?? 'configuracio'; // Obtenir la secció actual
 
     // CONFIGURACIO
     if (isset($_POST['add_configuracio'])) {
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Redirigir después de procesar
+    // Hem de redirigir despres de processar l'operació
     header("Location: " . $_SERVER['PHP_SELF'] . "?section=" . $current_section);
     exit;
 }
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Content -->
         <div class="content">
             <?php
-            // Mostrar la sección correspondiente
+            // Mostrar la secció corresponent
             $section = $_GET['section'] ?? 'configuracio';
             switch ($section) {
                 case 'configuracio':
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Pie de página -->
+    <!-- Peu de pàgina -->
     <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
         <div class="container">
             <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>

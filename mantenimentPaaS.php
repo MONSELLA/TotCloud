@@ -413,6 +413,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ?>
         </div>
     </div>
+
+    <!-- Peu de pàgina -->
+    <footer class="text-center py-3 mt-auto" style="background-color: #343a40; color: #f8f9fa;">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 TotCloud. Tots els drets reservats.</p>
+            <p class="mb-0">Contacte: info@totcloud.com | Telèfon: +34 900 123 456</p>
+        </div>
+    </footer>
+
 </body>
 
 </html>

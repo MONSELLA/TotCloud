@@ -34,27 +34,27 @@ class CPUVIRTUAL
 
     public function getHTML()
     {
-        // Paginación
+        // Paginació
         $limit = 6;
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
         $offset = ($page - 1) * $limit;
 
-        // Búsqueda
+        // Cerca de components
         $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
         $searchQuery = $search ? "WHERE velocitatRellotge LIKE '%$search%' OR preu LIKE '%$search%'" : '';
 
-        // Total de registros
+        // Tots els registres 
         $totalQuery = "SELECT COUNT(*) AS total FROM CPU_VIRTUAL $searchQuery";
         $totalResult = $this->conn->query($totalQuery);
         $totalRecords = $totalResult->fetch_assoc()['total'];
         $totalPages = ceil($totalRecords / $limit);
 
-        // Registros actuales
+        // Registres actuals
         $query = "SELECT * FROM CPU_VIRTUAL $searchQuery LIMIT $limit OFFSET $offset";
         $result = $this->conn->query($query);
 
         ob_start(); ?>
-        <!-- Formulario de búsqueda -->
+        <!-- Formulari de cerca-->
         <form method="GET" class="mb-4">
             <input type="hidden" name="section" value="cpuvirtual">
             <div class="input-group">
@@ -66,7 +66,7 @@ class CPUVIRTUAL
         </form>
 
 
-        <!-- Formulario de agregar -->
+        <!-- Formulari d'agregació -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="velocitatRellotge" class="form-label">Velocitat Rellotge:</label>
@@ -79,7 +79,7 @@ class CPUVIRTUAL
             <button type="submit" name="add_cpuvirtual" class="btn btn-success w-100">Afegir CPU Virtual</button>
         </form>
 
-        <!-- Tabla de registros -->
+        <!-- Taula de registres -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -97,13 +97,13 @@ class CPUVIRTUAL
                             <td><?= htmlspecialchars($row['velocitatRellotge']); ?></td>
                             <td><?= htmlspecialchars($row['preu']); ?></td>
                             <td>
-                                <!-- Botón Eliminar -->
+                                <!-- Botó per eliminar -->
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="idCPUV" value="<?= $row['idCPUV']; ?>">
                                     <button type="submit" name="delete_cpuvirtual" class="btn btn-danger">Eliminar</button>
                                 </form>
 
-                                <!-- Botón Actualizar -->
+                                <!-- Botó per actualitzar -->
                                 <button type="button" class="btn btn-primary"
                                     onclick="mostrarFormularioActualizar(<?= $row['idCPUV']; ?>, '<?= htmlspecialchars($row['velocitatRellotge']); ?>', '<?= htmlspecialchars($row['preu']); ?>')">Actualizar</button>
                             </td>
@@ -117,7 +117,7 @@ class CPUVIRTUAL
             </tbody>
         </table>
 
-        <!-- Paginación -->
+        <!-- Paginació -->
         <nav>
             <ul class="pagination justify-content-center">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -129,7 +129,7 @@ class CPUVIRTUAL
             </ul>
         </nav>
 
-        <!-- Formulario para Actualizar -->
+        <!-- Formulari per actualitzar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idCPUV" id="idCPUV-actualizar">
@@ -159,7 +159,7 @@ class CPUVIRTUAL
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 }

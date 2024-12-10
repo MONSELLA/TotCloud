@@ -43,7 +43,7 @@ class CONFIGURACIO
 
     public function getHTML()
     {
-        // Paginación y búsqueda
+        // Paginacio i cerca
         $limit = 6;
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
         $offset = ($page - 1) * $limit;
@@ -51,19 +51,19 @@ class CONFIGURACIO
         $search = isset($_GET['search']) ? $this->conn->real_escape_string($_GET['search']) : '';
         $searchQuery = $search ? "WHERE certSsl LIKE '%$search%' OR port LIKE '%$search%' OR maxConnexions LIKE '%$search%' OR rvaConnexions LIKE '%$search%'" : '';
 
-        // Total de registros
+        // Total dels registres
         $totalQuery = "SELECT COUNT(*) AS total FROM CONFIGURACIO $searchQuery";
         $totalResult = $this->conn->query($totalQuery);
         $totalRecords = $totalResult->fetch_assoc()['total'];
         $totalPages = ceil($totalRecords / $limit);
 
-        // Registros actuales
+        // Registres actuals
         $query = "SELECT * FROM CONFIGURACIO $searchQuery LIMIT $limit OFFSET $offset";
         $result = $this->conn->query($query);
 
         ob_start(); ?>
 
-        <!-- Formulario de búsqueda -->
+        <!-- Formulari de cerca-->
         <form method="GET" class="mb-4">
             <input type="hidden" name="section" value="configuracio">
             <div class="input-group">
@@ -74,7 +74,7 @@ class CONFIGURACIO
             </div>
         </form>
 
-        <!-- Formulario de agregar -->
+        <!-- Formulari d'agregació -->
         <form method="POST" class="mb-4">
             <div class="mb-3">
                 <label for="certSsl" class="form-label">Certificat SSL:</label>
@@ -88,25 +88,25 @@ class CONFIGURACIO
                 <input type="number" name="port" id="port" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="maxConnexions" class="form-label">Connexions Máximes:</label>
+                <label for="maxConnexions" class="form-label">Connexions Màximes:</label>
                 <input type="number" name="maxConnexions" id="maxConnexions" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="rvaConnexions" class="form-label">Revisió de Connexions:</label>
+                <label for="rvaConnexions" class="form-label">Connexions Reservades:</label>
                 <input type="number" name="rvaConnexions" id="rvaConnexions" class="form-control" required>
             </div>
             <button type="submit" name="add_configuracio" class="btn btn-success w-100">Afegir Configuració</button>
         </form>
 
-        <!-- Tabla de registros -->
+        <!-- Taula de registres -->
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Certificat SSL</th>
                     <th>Port</th>
-                    <th>Connexions Máximes</th>
-                    <th>Revisió de Connexions</th>
+                    <th>Connexions Màximes</th>
+                    <th>Connexions Reservades</th>
                     <th>Accions</th>
                 </tr>
             </thead>
@@ -142,7 +142,7 @@ class CONFIGURACIO
             </tbody>
         </table>
 
-        <!-- Paginación -->
+        <!-- Paginació -->
         <nav>
             <ul class="pagination justify-content-center">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -154,7 +154,7 @@ class CONFIGURACIO
             </ul>
         </nav>
 
-        <!-- Formulario para Actualizar -->
+        <!-- Formulari per Actualitzar -->
         <div id="formulario-actualizar" style="display: none; margin-top: 20px;">
             <form method="POST">
                 <input type="hidden" name="idConfig" id="idConfig-actualizar">
@@ -170,11 +170,11 @@ class CONFIGURACIO
                     <input type="number" name="port" id="port-actualizar" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="maxConnexions-actualizar" class="form-label">Connexions Máximes:</label>
+                    <label for="maxConnexions-actualizar" class="form-label">Connexions Màximes:</label>
                     <input type="number" name="maxConnexions" id="maxConnexions-actualizar" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="rvaConnexions-actualizar" class="form-label">Revisió de Connexions:</label>
+                    <label for="rvaConnexions-actualizar" class="form-label">Connexions Reservades:</label>
                     <input type="number" name="rvaConnexions" id="rvaConnexions-actualizar" class="form-control" required>
                 </div>
                 <button type="submit" name="update_configuracio" class="btn btn-success">Guardar Cambios</button>
@@ -196,7 +196,7 @@ class CONFIGURACIO
                 document.getElementById('formulario-actualizar').style.display = 'none';
             }
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 }
