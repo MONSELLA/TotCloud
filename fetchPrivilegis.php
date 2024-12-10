@@ -3,7 +3,7 @@ include('connection.php');
 header('Content-Type: application/json');
 
 // Consulta per obtenir els privilegis que es poden associar a un usuari
-$sql = "SELECT nom FROM privilegis";
+$sql = "SELECT nom FROM privilegi";
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
